@@ -1,0 +1,16 @@
+label {
+  font-size: 2.5em;
+  fill: #635F5D;
+}
+select {
+  font-size: 2em;
+}
+select option {
+  font-size: 2rem;
+}
+
+rect {
+ fill:#67c0e0; 
+ stroke-width:1.5;
+ stroke:#67c0e0;
+}
