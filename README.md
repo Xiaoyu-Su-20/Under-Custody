@@ -10,4 +10,6 @@
 - [Based off work of this user](https://vizhub.com/Razpudding)
 
 ## 
-- m
+- Using react DOM to render the barplot.
+- Using react Dropdown component. 
+- Using react hooks to change the data. 
