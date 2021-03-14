@@ -8,7 +8,7 @@ const App = () => {
   const rawData = useJSON();
 
   if (!rawData) {
-    return <pre>Loading...</pre>;
+    return <h2>Loading...</h2>;
   }
 
   console.log(rawData);
