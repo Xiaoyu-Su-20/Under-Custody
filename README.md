@@ -7,9 +7,14 @@
 - Eliminate age from x-axis selection options without breaking the code
 
 ## Build Instructions
-``console
-foo@bar:~$ npm install # just once
-foo@bar:~$ npm install # after each change
+
+- First to install dependencies
+```console
+foo@bar:~$ npm install
+```
+- After each modification run the code below to build bundle.js
+```console
+foo@bar:~$ npm run build
 ```
 
 ## Credit
