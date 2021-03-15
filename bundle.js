@@ -1,167 +1,202 @@
-(function (React$1, ReactDOM) {
+(function (React$1, ReactDOM, d3$1) {
   'use strict';
 
-  var React$1__default = 'default' in React$1 ? React$1['default'] : React$1;
-  ReactDOM = ReactDOM && Object.prototype.hasOwnProperty.call(ReactDOM, 'default') ? ReactDOM['default'] : ReactDOM;
+  function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
-  const jsonURL = 'https://gist.githubusercontent.com/aulichney/d4589c85658f1a2248b143dfd62005b4/raw/1b7c1826210517d3baa7c687de2b21e11ccdb1bf/undercustodymod.json';
+  var React__default = /*#__PURE__*/_interopDefaultLegacy(React$1);
+  var ReactDOM__default = /*#__PURE__*/_interopDefaultLegacy(ReactDOM);
 
-  // helper function; clean the data 
-  function cleanData(row){
+  var jsonURL =
+    "https://gist.githubusercontent.com/aulichney/d4589c85658f1a2248b143dfd62005b4/raw/1b7c1826210517d3baa7c687de2b21e11ccdb1bf/undercustodymod.json";
+
+  // helper function; clean the data
+  function cleanData(row) {
     return {
       sex: row.sex,
       age: Number(row.age),
       race: row.race,
-      ethnicity: row.ethnicGroup
-    }
+      ethnicity: row.ethnicGroup,
+    };
   }
 
-  // Given the JSON data and a specified column name, 
-  // group by the column, compute the value counts and the average age 
-  function transformData(data, col){
-    let transformed =  d3.nest()
-  		.key(d => d[col])
-    	.rollup(d => {
+  // Given the JSON data and a specified column name,
+  // group by the column, compute the value counts and the average age
+  function transformData(data, col) {
+    var transformed = d3
+      .nest()
+      .key(function (d) { return d[col]; })
+      .rollup(function (d) {
         return {
           amount: d.length,
-  				ageAvg: d3.mean(d.map(correspondent => correspondent.age))
-        }
+          ageAvg: d3.mean(d.map(function (correspondent) { return correspondent.age; })),
+        };
       })
-  		.entries(data);
-    return transformed
+      .entries(data);
+    return transformed;
   }
 
-  // main function; retrieve the data from the JSON file 
-  const useJSON = () => {
-    const [data, setData] = React$1.useState(null);
-    	React$1.useEffect( () => { 
+  // main function; retrieve the data from the JSON file
+  var useJSON = function () {
+    var ref = React$1.useState(null);
+    var data = ref[0];
+    var setData = ref[1];
+    React$1.useEffect(function () {
       d3.json(jsonURL) // retrieve data from the given URL
-        .then( function(data) { //when data is retrieved, do the following 
-      	data = data.map(cleanData); // map each row to the cleanData function to retrieve the desired columns 
-        setData(data); // use the react hook to set the data
-      });
-  }, []);
+        .then(function (data) {
+          //when data is retrieved, do the following
+          data = data.map(cleanData); // map each row to the cleanData function to retrieve the desired columns
+          setData(data);
+          // use the react hook to set the data
+        });
+    }, []);
     return data;
   };
 
-  const Dropdown = ({ options, id, selectedValue, onSelectedValueChange }) => (
-    React.createElement( 'select', { id: id, onChange: event => onSelectedValueChange(event.target.value) },
-      options.map(({ value, label }) => (
+  var Dropdown = function (ref) {
+    var options = ref.options;
+    var id = ref.id;
+    var selectedValue = ref.selectedValue;
+    var onSelectedValueChange = ref.onSelectedValueChange;
+
+    return (
+    React.createElement( 'select', { id: id, onChange: function (event) { return onSelectedValueChange(event.target.value); } },
+      options.map(function (ref) {
+        var value = ref.value;
+        var label = ref.label;
+
+        return (
         React.createElement( 'option', { value: value, selected: value === selectedValue },
           label
         )
-      ))
+      );
+    })
     )
   );
-
-  // bar constants 
-  const WIDTH = 600;
-  const HEIGHT= 400;
-  const margin={top: 25, right: 25, bottom: 50, left: 50};
-  const innerWidth = WIDTH - margin.left - margin.right;
-  const innerHeight = HEIGHT - margin.top - margin.bottom;
-  const barAdjust = 5; // for adjusting the width of bars
-
-  const Bar = ({barData, yAttribute}) => {
-
-    const svg = d3.select("svg");
-    
-    // remove everything from svg and rerender objects
-    svg.selectAll("*").remove();  
-  	
-    // draw axes
-    const xScale = d3.scaleBand()
-                   .domain(barData.map(d => d.key))
-                   .range([0, innerWidth])
-                   .paddingInner([.2]);
-    const yScale = d3.scaleLinear()
-                   .domain([0, d3.max( barData.map(d => d.value[yAttribute]) )] )
-                   .range([innerHeight, 0]);
-
-    const xAxis = d3.axisBottom().scale(xScale);
-    const yAxis = d3.axisLeft().scale(yScale);
-
-    svg.append("g")
-      .attr("class", "xAxis")
-      .attr("transform", `translate (${margin.left}, ${HEIGHT - margin.bottom})`)
-      .call(xAxis);
-    svg.append("g")
-      .attr("class", "yAxis")
-      .attr("transform", `translate (${margin.left}, ${margin.top})`)
-      .call(yAxis);
-    
-    // draw bars
-    const bars = svg.append('g')
-                      .attr("transform", `translate (${margin.left}, ${margin.top})`)
-                      .selectAll("rect")
-                      .data(barData, d => d.key);
-    bars.enter().append("rect")
-      .attr("x", (d, i) => xScale(d.key)+barAdjust)
-      .attr("y", d => yScale(d.value[yAttribute]))
-      .attr("width", xScale.bandwidth()-barAdjust*2)
-      .attr("height", d => innerHeight - yScale(d.value[yAttribute]))
-      .style('opacity', 0.7)
-      .on("mouseover", function(d){ // add mouseover event 
-          d3.select(this)
-            .style("opacity", 1);
-      }).on("mouseout", function(d){
-          d3.select(this)
-            .style("opacity", 0.7);
-      });
-  	
-    return (React.createElement( React.Fragment, null )); //d3 draws the graph, thus return nothing
   };
 
-  const Chart = ( {rawData} ) => {
-    
-    // create React hooks for controlling the grouped data we want to generate; also, setup the initial value 
-    const [xAttribute, setXAttribute] = React$1.useState('sex');
-    const [yAttribute, setYAttribute] = React$1.useState('amount');
-    
+  // bar constants
+  var WIDTH = 600;
+  var HEIGHT = 400;
+  var margin = { top: 25, right: 25, bottom: 50, left: 50 };
+  var innerWidth = WIDTH - margin.left - margin.right;
+  var innerHeight = HEIGHT - margin.top - margin.bottom;
+  var barAdjust = 5; // for adjusting the width of bars
+
+  var Bar = function (ref) {
+    var barData = ref.barData;
+    var yAttribute = ref.yAttribute;
+
+    var svg = d3$1.select("svg");
+
+    // remove everything from svg and rerender objects
+    svg.selectAll("*").remove();
+
+    // draw axes
+    var xScale = d3
+      .scaleBand()
+      .domain(barData.map(function (d) { return d.key; }))
+      .range([0, innerWidth])
+      .paddingInner([0.2]);
+    var yScale = d3
+      .scaleLinear()
+      .domain([0, d3.max(barData.map(function (d) { return d.value[yAttribute]; }))])
+      .range([innerHeight, 0]);
+
+    var xAxis = d3$1.axisBottom().scale(xScale);
+    var yAxis = d3$1.axisLeft().scale(yScale);
+
+    svg
+      .append("g")
+      .attr("class", "xAxis")
+      .attr("transform", ("translate (" + (margin.left) + ", " + (HEIGHT - margin.bottom) + ")"))
+      .call(xAxis);
+    svg
+      .append("g")
+      .attr("class", "yAxis")
+      .attr("transform", ("translate (" + (margin.left) + ", " + (margin.top) + ")"))
+      .call(yAxis);
+
+    // draw bars
+    var bars = svg
+      .append("g")
+      .attr("transform", ("translate (" + (margin.left) + ", " + (margin.top) + ")"))
+      .selectAll("rect")
+      .data(barData, function (d) { return d.key; });
+    bars
+      .enter()
+      .append("rect")
+      .attr("x", function (d, i) { return xScale(d.key) + barAdjust; })
+      .attr("y", function (d) { return yScale(d.value[yAttribute]); })
+      .attr("width", xScale.bandwidth() - barAdjust * 2)
+      .attr("height", function (d) { return innerHeight - yScale(d.value[yAttribute]); })
+      .style("opacity", 0.7)
+      .on("mouseover", function (d) {
+        // add mouseover event
+        d3$1.select(this).style("opacity", 1);
+      })
+      .on("mouseout", function (d) {
+        d3$1.select(this).style("opacity", 0.7);
+      });
+
+    return React.createElement( React.Fragment, null ); //d3 draws the graph, thus return nothing
+  };
+
+  var Chart = function (ref) {
+    var rawData = ref.rawData;
+
+    // create React hooks for controlling the grouped data we want to generate; also, setup the initial value
+    var ref$1 = React$1.useState("sex");
+    var xAttribute = ref$1[0];
+    var setXAttribute = ref$1[1];
+    var ref$2 = React$1.useState("amount");
+    var yAttribute = ref$2[0];
+    var setYAttribute = ref$2[1];
+
     // according to the current xAttr ibute, group by that attribute and compute the number of observations and the average age
-    const barData = transformData(rawData, xAttribute);
+    var barData = transformData(rawData, xAttribute);
 
-    // map each column to { value: col, label: col } to feed into react Dropdown menu 
-   	const xFields = Object.keys(rawData[0]).map(d => ({"value":d, "label":d}));
-    const yFields = Object.keys(barData[0].value).map(d => ({"value":d, "label":d}));
+    // map each column to { value: col, label: col } to feed into react Dropdown menu
+    var xFields = Object.keys(rawData[0]).map(function (d) { return ({ value: d, label: d }); });
+    var yFields = Object.keys(barData[0].value).map(function (d) { return ({
+      value: d,
+      label: d,
+    }); });
 
-
-    // return the title, the dropdown menus, and the barplot with axes  
-  	return(
+    // return the title, the dropdown menus, and the barplot with axes
+    return (
       React.createElement( React.Fragment, null,
         React.createElement( 'h1', null, " Under Custody Data Visualization with Filters" ),
-        
+
         React.createElement( 'label', { for: "x-select" }, "X:"),
         React.createElement( Dropdown, {
           options: xFields, id: "x-select", selectedValue: xAttribute, onSelectedValueChange: setXAttribute }),
         React.createElement( 'label', { for: "y-select" }, "Y:"),
         React.createElement( Dropdown, {
-          options: yFields, id: "y-select", selectedValue: yAttribute, onSelectedValueChange: setYAttribute }),     
+          options: yFields, id: "y-select", selectedValue: yAttribute, onSelectedValueChange: setYAttribute }),
 
         React.createElement( Bar, { barData: barData, yAttribute: yAttribute })
-  		)
-  	);
-  };
-
-  const App = () => {
-    const rawData = useJSON();
-
-    if (!rawData) {
-      return React$1__default.createElement( 'pre', null, "Loading..." );
-    }
-   	
-    console.log(rawData);
-    
-    return (
-    React$1__default.createElement( React$1__default.Fragment, null,
-    	 React$1__default.createElement( Chart, { rawData: rawData })
-    )
+      )
     );
   };
 
-  const rootElement = document.getElementById("root");
-  ReactDOM.render(React$1__default.createElement( App, null ), rootElement);
+  var App = function () {
+    var rawData = useJSON();
 
-}(React, ReactDOM));
+    if (!rawData) {
+      return React__default['default'].createElement( 'h2', null, "Loading..." );
+    }
 
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzIjpbInVzZURhdGEuanMiLCJEcm9wZG93bi5qcyIsImJhci5qcyIsImluZGV4LmpzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBSZWFjdCwgeyB1c2VTdGF0ZSwgdXNlRWZmZWN0IH0gZnJvbSAncmVhY3QnO1xuXG4gIGNvbnN0IGpzb25VUkwgPSAnaHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9hdWxpY2huZXkvZDQ1ODljODU2NThmMWEyMjQ4YjE0M2RmZDYyMDA1YjQvcmF3LzFiN2MxODI2MjEwNTE3ZDNiYWE3YzY4N2RlMmIyMWUxMWNjZGIxYmYvdW5kZXJjdXN0b2R5bW9kLmpzb24nXG5cbmxldCBvdXRwdXQgPSB0cnVlXG5cbi8vIGhlbHBlciBmdW5jdGlvbjsgY2xlYW4gdGhlIGRhdGEgXG5mdW5jdGlvbiBjbGVhbkRhdGEocm93KXtcbiAgcmV0dXJuIHtcbiAgICBzZXg6IHJvdy5zZXgsXG4gICAgYWdlOiBOdW1iZXIocm93LmFnZSksXG4gICAgcmFjZTogcm93LnJhY2UsXG4gICAgZXRobmljaXR5OiByb3cuZXRobmljR3JvdXBcbiAgfVxufVxuXG4vLyBHaXZlbiB0aGUgSlNPTiBkYXRhIGFuZCBhIHNwZWNpZmllZCBjb2x1bW4gbmFtZSwgXG4vLyBncm91cCBieSB0aGUgY29sdW1uLCBjb21wdXRlIHRoZSB2YWx1ZSBjb3VudHMgYW5kIHRoZSBhdmVyYWdlIGFnZSBcbmV4cG9ydCBmdW5jdGlvbiB0cmFuc2Zvcm1EYXRhKGRhdGEsIGNvbCl7XG4gIGxldCB0cmFuc2Zvcm1lZCA9ICBkMy5uZXN0KClcblx0XHQua2V5KGQgPT4gZFtjb2xdKVxuICBcdC5yb2xsdXAoZCA9PiB7XG4gICAgICByZXR1cm4ge1xuICAgICAgICBhbW91bnQ6IGQubGVuZ3RoLFxuXHRcdFx0XHRhZ2VBdmc6IGQzLm1lYW4oZC5tYXAoY29ycmVzcG9uZGVudCA9PiBjb3JyZXNwb25kZW50LmFnZSkpXG4gICAgICB9XG4gICAgfSlcblx0XHQuZW50cmllcyhkYXRhKTtcbiAgcmV0dXJuIHRyYW5zZm9ybWVkXG59XG5cbi8vIG1haW4gZnVuY3Rpb247IHJldHJpZXZlIHRoZSBkYXRhIGZyb20gdGhlIEpTT04gZmlsZSBcbmV4cG9ydCBjb25zdCB1c2VKU09OID0gKCkgPT4ge1xuICBjb25zdCBbZGF0YSwgc2V0RGF0YV0gPSB1c2VTdGF0ZShudWxsKTtcbiAgXHR1c2VFZmZlY3QoICgpID0+IHsgXG4gICAgZDMuanNvbihqc29uVVJMKSAvLyByZXRyaWV2ZSBkYXRhIGZyb20gdGhlIGdpdmVuIFVSTFxuICAgICAgLnRoZW4oIGZ1bmN0aW9uKGRhdGEpIHsgLy93aGVuIGRhdGEgaXMgcmV0cmlldmVkLCBkbyB0aGUgZm9sbG93aW5nIFxuICAgIFx0ZGF0YSA9IGRhdGEubWFwKGNsZWFuRGF0YSkgLy8gbWFwIGVhY2ggcm93IHRvIHRoZSBjbGVhbkRhdGEgZnVuY3Rpb24gdG8gcmV0cmlldmUgdGhlIGRlc2lyZWQgY29sdW1ucyBcbiAgICAgIHNldERhdGEoZGF0YSkgLy8gdXNlIHRoZSByZWFjdCBob29rIHRvIHNldCB0aGUgZGF0YVxuICAgIH0pO1xufSwgW10pO1xuICByZXR1cm4gZGF0YTtcbn07XG5cblxuXG4iLCJleHBvcnQgY29uc3QgRHJvcGRvd24gPSAoeyBvcHRpb25zLCBpZCwgc2VsZWN0ZWRWYWx1ZSwgb25TZWxlY3RlZFZhbHVlQ2hhbmdlIH0pID0+IChcbiAgPHNlbGVjdCBpZD17aWR9IG9uQ2hhbmdlPXtldmVudCA9PiBvblNlbGVjdGVkVmFsdWVDaGFuZ2UoZXZlbnQudGFyZ2V0LnZhbHVlKX0+XG4gICAge29wdGlvbnMubWFwKCh7IHZhbHVlLCBsYWJlbCB9KSA9PiAoXG4gICAgICA8b3B0aW9uIHZhbHVlPXt2YWx1ZX0gc2VsZWN0ZWQ9e3ZhbHVlID09PSBzZWxlY3RlZFZhbHVlfT5cbiAgICAgICAge2xhYmVsfVxuICAgICAgPC9vcHRpb24+XG4gICAgKSl9XG4gIDwvc2VsZWN0PlxuKTsiLCJpbXBvcnQgeyB1c2VTdGF0ZSwgdXNlQ2FsbGJhY2ssIHVzZUVmZmVjdCB9IGZyb20gXCJyZWFjdFwiO1xuIFxuaW1wb3J0IHsgdHJhbnNmb3JtRGF0YX0gZnJvbSBcIi4vdXNlRGF0YVwiO1xuaW1wb3J0IHsgRHJvcGRvd24gfSBmcm9tICcuL0Ryb3Bkb3duJztcblxuXG4vLyBiYXIgY29uc3RhbnRzIFxuY29uc3QgV0lEVEggPSA2MDA7XG5jb25zdCBIRUlHSFQ9IDQwMDtcbmNvbnN0IG1hcmdpbj17dG9wOiAyNSwgcmlnaHQ6IDI1LCBib3R0b206IDUwLCBsZWZ0OiA1MH07XG5jb25zdCBpbm5lcldpZHRoID0gV0lEVEggLSBtYXJnaW4ubGVmdCAtIG1hcmdpbi5yaWdodDtcbmNvbnN0IGlubmVySGVpZ2h0ID0gSEVJR0hUIC0gbWFyZ2luLnRvcCAtIG1hcmdpbi5ib3R0b207XG5jb25zdCBiYXJBZGp1c3QgPSA1IC8vIGZvciBhZGp1c3RpbmcgdGhlIHdpZHRoIG9mIGJhcnNcblxuY29uc3QgQmFyID0gKHtiYXJEYXRhLCB5QXR0cmlidXRlfSkgPT4ge1xuXG4gIGNvbnN0IHN2ZyA9IGQzLnNlbGVjdChcInN2Z1wiKVxuICBcbiAgLy8gcmVtb3ZlIGV2ZXJ5dGhpbmcgZnJvbSBzdmcgYW5kIHJlcmVuZGVyIG9iamVjdHNcbiAgc3ZnLnNlbGVjdEFsbChcIipcIikucmVtb3ZlKCk7ICBcblx0XG4gIC8vIGRyYXcgYXhlc1xuICBjb25zdCB4U2NhbGUgPSBkMy5zY2FsZUJhbmQoKVxuICAgICAgICAgICAgICAgICAuZG9tYWluKGJhckRhdGEubWFwKGQgPT4gZC5rZXkpKVxuICAgICAgICAgICAgICAgICAucmFuZ2UoWzAsIGlubmVyV2lkdGhdKVxuICAgICAgICAgICAgICAgICAucGFkZGluZ0lubmVyKFsuMl0pO1xuICBjb25zdCB5U2NhbGUgPSBkMy5zY2FsZUxpbmVhcigpXG4gICAgICAgICAgICAgICAgIC5kb21haW4oWzAsIGQzLm1heCggYmFyRGF0YS5tYXAoZCA9PiBkLnZhbHVlW3lBdHRyaWJ1dGVdKSApXSApXG4gICAgICAgICAgICAgICAgIC5yYW5nZShbaW5uZXJIZWlnaHQsIDBdKVxuXG4gIGNvbnN0IHhBeGlzID0gZDMuYXhpc0JvdHRvbSgpLnNjYWxlKHhTY2FsZSk7XG4gIGNvbnN0IHlBeGlzID0gZDMuYXhpc0xlZnQoKS5zY2FsZSh5U2NhbGUpO1xuXG4gIHN2Zy5hcHBlbmQoXCJnXCIpXG4gICAgLmF0dHIoXCJjbGFzc1wiLCBcInhBeGlzXCIpXG4gICAgLmF0dHIoXCJ0cmFuc2Zvcm1cIiwgYHRyYW5zbGF0ZSAoJHttYXJnaW4ubGVmdH0sICR7SEVJR0hUIC0gbWFyZ2luLmJvdHRvbX0pYClcbiAgICAuY2FsbCh4QXhpcyk7XG4gIHN2Zy5hcHBlbmQoXCJnXCIpXG4gICAgLmF0dHIoXCJjbGFzc1wiLCBcInlBeGlzXCIpXG4gICAgLmF0dHIoXCJ0cmFuc2Zvcm1cIiwgYHRyYW5zbGF0ZSAoJHttYXJnaW4ubGVmdH0sICR7bWFyZ2luLnRvcH0pYClcbiAgICAuY2FsbCh5QXhpcyk7XG4gIFxuICAvLyBkcmF3IGJhcnNcbiAgY29uc3QgYmFycyA9IHN2Zy5hcHBlbmQoJ2cnKVxuICAgICAgICAgICAgICAgICAgICAuYXR0cihcInRyYW5zZm9ybVwiLCBgdHJhbnNsYXRlICgke21hcmdpbi5sZWZ0fSwgJHttYXJnaW4udG9wfSlgKVxuICAgICAgICAgICAgICAgICAgICAuc2VsZWN0QWxsKFwicmVjdFwiKVxuICAgICAgICAgICAgICAgICAgICAuZGF0YShiYXJEYXRhLCBkID0+IGQua2V5KTtcbiAgYmFycy5lbnRlcigpLmFwcGVuZChcInJlY3RcIilcbiAgICAuYXR0cihcInhcIiwgKGQsIGkpID0+IHhTY2FsZShkLmtleSkrYmFyQWRqdXN0KVxuICAgIC5hdHRyKFwieVwiLCBkID0+IHlTY2FsZShkLnZhbHVlW3lBdHRyaWJ1dGVdKSlcbiAgICAuYXR0cihcIndpZHRoXCIsIHhTY2FsZS5iYW5kd2lkdGgoKS1iYXJBZGp1c3QqMilcbiAgICAuYXR0cihcImhlaWdodFwiLCBkID0+IGlubmVySGVpZ2h0IC0geVNjYWxlKGQudmFsdWVbeUF0dHJpYnV0ZV0pKVxuICAgIC5zdHlsZSgnb3BhY2l0eScsIDAuNylcbiAgICAub24oXCJtb3VzZW92ZXJcIiwgZnVuY3Rpb24oZCl7IC8vIGFkZCBtb3VzZW92ZXIgZXZlbnQgXG4gICAgICAgIGQzLnNlbGVjdCh0aGlzKVxuICAgICAgICAgIC5zdHlsZShcIm9wYWNpdHlcIiwgMSk7XG4gICAgfSkub24oXCJtb3VzZW91dFwiLCBmdW5jdGlvbihkKXtcbiAgICAgICAgZDMuc2VsZWN0KHRoaXMpXG4gICAgICAgICAgLnN0eWxlKFwib3BhY2l0eVwiLCAwLjcpO1xuICAgIH0pO1xuXHRcbiAgcmV0dXJuICg8PjwvPik7IC8vZDMgZHJhd3MgdGhlIGdyYXBoLCB0aHVzIHJldHVybiBub3RoaW5nXG59O1xuXG5leHBvcnQgY29uc3QgQ2hhcnQgPSAoIHtyYXdEYXRhfSApID0+IHtcbiAgXG4gIC8vIGNyZWF0ZSBSZWFjdCBob29rcyBmb3IgY29udHJvbGxpbmcgdGhlIGdyb3VwZWQgZGF0YSB3ZSB3YW50IHRvIGdlbmVyYXRlOyBhbHNvLCBzZXR1cCB0aGUgaW5pdGlhbCB2YWx1ZSBcbiAgY29uc3QgW3hBdHRyaWJ1dGUsIHNldFhBdHRyaWJ1dGVdID0gdXNlU3RhdGUoJ3NleCcpO1xuICBjb25zdCBbeUF0dHJpYnV0ZSwgc2V0WUF0dHJpYnV0ZV0gPSB1c2VTdGF0ZSgnYW1vdW50Jyk7XG4gIFxuICAvLyBhY2NvcmRpbmcgdG8gdGhlIGN1cnJlbnQgeEF0dHIgaWJ1dGUsIGdyb3VwIGJ5IHRoYXQgYXR0cmlidXRlIGFuZCBjb21wdXRlIHRoZSBudW1iZXIgb2Ygb2JzZXJ2YXRpb25zIGFuZCB0aGUgYXZlcmFnZSBhZ2VcbiAgY29uc3QgYmFyRGF0YSA9IHRyYW5zZm9ybURhdGEocmF3RGF0YSwgeEF0dHJpYnV0ZSlcblxuICAvLyBtYXAgZWFjaCBjb2x1bW4gdG8geyB2YWx1ZTogY29sLCBsYWJlbDogY29sIH0gdG8gZmVlZCBpbnRvIHJlYWN0IERyb3Bkb3duIG1lbnUgXG4gXHRjb25zdCB4RmllbGRzID0gT2JqZWN0LmtleXMocmF3RGF0YVswXSkubWFwKGQgPT4gKHtcInZhbHVlXCI6ZCwgXCJsYWJlbFwiOmR9KSk7XG4gIGNvbnN0IHlGaWVsZHMgPSBPYmplY3Qua2V5cyhiYXJEYXRhWzBdLnZhbHVlKS5tYXAoZCA9PiAoe1widmFsdWVcIjpkLCBcImxhYmVsXCI6ZH0pKTtcblxuXG4gIC8vIHJldHVybiB0aGUgdGl0bGUsIHRoZSBkcm9wZG93biBtZW51cywgYW5kIHRoZSBiYXJwbG90IHdpdGggYXhlcyAgXG5cdHJldHVybihcbiAgICA8PlxuICAgICAgPGgxPiBVbmRlciBDdXN0b2R5IERhdGEgVmlzdWFsaXphdGlvbiB3aXRoIEZpbHRlcnM8L2gxPlxuICAgICAgXG4gICAgICA8bGFiZWwgZm9yPVwieC1zZWxlY3RcIj5YOjwvbGFiZWw+XG4gICAgICA8RHJvcGRvd25cbiAgICAgICAgb3B0aW9ucz17eEZpZWxkc31cbiAgICAgICAgaWQ9XCJ4LXNlbGVjdFwiXG4gICAgICAgIHNlbGVjdGVkVmFsdWU9e3hBdHRyaWJ1dGV9XG4gICAgICAgIG9uU2VsZWN0ZWRWYWx1ZUNoYW5nZT17c2V0WEF0dHJpYnV0ZX1cbiAgICAgIC8+XG4gICAgICA8bGFiZWwgZm9yPVwieS1zZWxlY3RcIj5ZOjwvbGFiZWw+XG4gICAgICA8RHJvcGRvd25cbiAgICAgICAgb3B0aW9ucz17eUZpZWxkc31cbiAgICAgICAgaWQ9XCJ5LXNlbGVjdFwiXG4gICAgICAgIHNlbGVjdGVkVmFsdWU9e3lBdHRyaWJ1dGV9XG4gICAgICAgIG9uU2VsZWN0ZWRWYWx1ZUNoYW5nZT17c2V0WUF0dHJpYnV0ZX1cbiAgICAgIC8+ICAgIFxuXG4gICAgICA8QmFyIGJhckRhdGE9e2JhckRhdGF9IHlBdHRyaWJ1dGU9e3lBdHRyaWJ1dGV9Lz5cblx0XHQ8Lz5cblx0KTtcbn07XG4iLCJpbXBvcnQgUmVhY3QgZnJvbSBcInJlYWN0XCI7XG5pbXBvcnQgUmVhY3RET00gZnJvbSBcInJlYWN0LWRvbVwiO1xuIFxuaW1wb3J0IHsgdXNlRGF0YSwgdXNlSlNPTiB9IGZyb20gXCIuL3VzZURhdGFcIjtcbmltcG9ydCB7IENoYXJ0IH0gZnJvbSAnLi9iYXInO1xuXG5cbmNvbnN0IEFwcCA9ICgpID0+IHtcbiAgY29uc3QgcmF3RGF0YSA9IHVzZUpTT04oKTtcblxuICBpZiAoIXJhd0RhdGEpIHtcbiAgICByZXR1cm4gPHByZT5Mb2FkaW5nLi4uPC9wcmU+O1xuICB9XG4gXHRcbiAgY29uc29sZS5sb2cocmF3RGF0YSlcbiAgXG4gIHJldHVybiAoXG4gIDw+XG4gIFx0IDxDaGFydCByYXdEYXRhPXtyYXdEYXRhfS8+XG4gIDwvPlxuICApO1xufTtcblxuY29uc3Qgcm9vdEVsZW1lbnQgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZChcInJvb3RcIik7XG5SZWFjdERPTS5yZW5kZXIoPEFwcCAvPiwgcm9vdEVsZW1lbnQpO1xuIl0sIm5hbWVzIjpbInVzZVN0YXRlIiwidXNlRWZmZWN0IiwiUmVhY3QiXSwibWFwcGluZ3MiOiI7Ozs7OztFQUVFLE1BQU0sT0FBTyxHQUFHLGtKQUFpSjtBQUduSztFQUNBO0VBQ0EsU0FBUyxTQUFTLENBQUMsR0FBRyxDQUFDO0VBQ3ZCLEVBQUUsT0FBTztFQUNULElBQUksR0FBRyxFQUFFLEdBQUcsQ0FBQyxHQUFHO0VBQ2hCLElBQUksR0FBRyxFQUFFLE1BQU0sQ0FBQyxHQUFHLENBQUMsR0FBRyxDQUFDO0VBQ3hCLElBQUksSUFBSSxFQUFFLEdBQUcsQ0FBQyxJQUFJO0VBQ2xCLElBQUksU0FBUyxFQUFFLEdBQUcsQ0FBQyxXQUFXO0VBQzlCLEdBQUc7RUFDSCxDQUFDO0FBQ0Q7RUFDQTtFQUNBO0VBQ08sU0FBUyxhQUFhLENBQUMsSUFBSSxFQUFFLEdBQUcsQ0FBQztFQUN4QyxFQUFFLElBQUksV0FBVyxJQUFJLEVBQUUsQ0FBQyxJQUFJLEVBQUU7RUFDOUIsR0FBRyxHQUFHLENBQUMsQ0FBQyxJQUFJLENBQUMsQ0FBQyxHQUFHLENBQUMsQ0FBQztFQUNu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
+    console.log(rawData);
+
+    return (
+      React__default['default'].createElement( React__default['default'].Fragment, null,
+        React__default['default'].createElement( Chart, { rawData: rawData })
+      )
+    );
+  };
+
+  var rootElement = document.getElementById("root");
+  ReactDOM__default['default'].render(React__default['default'].createElement( App, null ), rootElement);
+
+}(React, ReactDOM, d3));
+//# sourceMappingURL=bundle.js.map

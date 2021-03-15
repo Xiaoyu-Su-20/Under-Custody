@@ -6,6 +6,17 @@
 - Eliminate entries with no info for selected variables before plotting to prevent empty bars
 - Eliminate age from x-axis selection options without breaking the code
 
+## Build Instructions
+
+- First to install dependencies
+```console
+foo@bar:~$ npm install
+```
+- After each modification run the code below to build bundle.js
+```console
+foo@bar:~$ npm run build
+```
+
 ## Credit
 - [Based off work of this user](https://vizhub.com/Razpudding)
 
