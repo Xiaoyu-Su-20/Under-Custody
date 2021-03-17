@@ -3,8 +3,6 @@ import React, { useState, useEffect } from "react";
 const jsonURL =
   "https://gist.githubusercontent.com/aulichney/d4589c85658f1a2248b143dfd62005b4/raw/3b10ecd311754f3c2234d6c880622d33ad7d176f/undercustodymod.json";
 
-let output = true;
-
 // helper function; clean the data
 function cleanData(row) {
   return {
@@ -16,7 +14,7 @@ function cleanData(row) {
 }
 
 // Given the JSON data and a specified column name,
-// group by the column, compute the value counts and the average age and average time served
+// group by the column, compute the value counts and the average age
 export function transformData(data, col) {
   let transformed = d3
     .nest()
@@ -25,7 +23,7 @@ export function transformData(data, col) {
       return {
         amount: d.length,
         ageAvg: d3.mean(d.map((correspondent) => correspondent.age)),
-        avgTimeServed: d3.mean(d.map(correspondent => correspondent.timeServed))
+        avgTimeServed: d3.mean(d.map(function (correspondent) {return correspondent.timeServed; }))
       };
     })
     .entries(data);
