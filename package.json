@@ -3,7 +3,7 @@
     "build": "rollup -c"
   },
   "devDependencies": {
-    "@rollup/plugin-buble": "latest",
-    "rollup": "latest"
+    "rollup": "latest",
+    "@rollup/plugin-buble": "latest"
   }
 }

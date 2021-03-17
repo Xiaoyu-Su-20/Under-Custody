@@ -1,12 +1,12 @@
 label {
-  font-size: 2.5em;
+  font-size: 1.5em;
   fill: #635F5D;
 }
 select {
-  font-size: 2em;
+  font-size: 1em;
 }
 select option {
-  font-size: 2rem;
+  font-size: 1rem;
 }
 
 rect {
