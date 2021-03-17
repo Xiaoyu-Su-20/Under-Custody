@@ -3,15 +3,20 @@ import { select, axisBottom, axisLeft } from "d3";
 import { transformData } from "./useData";
 import { Dropdown } from "./Dropdown";
 
-// bar constants
+//Title case function for axis title formatting
+function toTitle(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// bar constant
 const WIDTH = 600;
 const HEIGHT = 400;
-const margin = { top: 25, right: 25, bottom: 50, left: 50 };
+const margin = { top: 25, right: 25, bottom: 75, left: 75 };
 const innerWidth = WIDTH - margin.left - margin.right;
 const innerHeight = HEIGHT - margin.top - margin.bottom;
 const barAdjust = 5; // for adjusting the width of bars
 
-const Bar = ({ barData, yAttribute }) => {
+const Bar = ({ barData, yAttribute, xAttribute}) => {
   const svg = select("svg");
 
   // remove everything from svg and rerender objects
@@ -64,6 +69,25 @@ const Bar = ({ barData, yAttribute }) => {
       select(this).style("opacity", 0.7);
     });
 
+//Axis labels
+	svg
+  	.append("text")
+  	.attr("transform", "rotate(-90)")
+  	.attr('class', 'ylabel')
+  	.attr("y", 0)
+  	.attr("x", 0 - HEIGHT/2)
+  	.attr("dy", "1em")
+  	.style("text-anchor", "middle")
+  	.text(toTitle(yAttribute));
+svg
+  	.append("text")
+  	.attr('class', 'xlabel')
+  	.attr("y", HEIGHT - margin.bottom)
+  	.attr("x", 0 + WIDTH/2)
+  	.attr("dy", "3em")
+  	.style("text-anchor", "middle")
+  	.text(toTitle(xAttribute)); //Need to restructure to pass xAttribute to this function as well
+
   return <></>; //d3 draws the graph, thus return nothing
 };
 
@@ -102,7 +126,7 @@ export const Chart = ({ rawData }) => {
         onSelectedValueChange={setYAttribute}
       />
 
-      <Bar barData={barData} yAttribute={yAttribute} />
+      <Bar barData={barData} yAttribute={yAttribute} xAttribute = {xAttribute}/>
     </>
   );
 };

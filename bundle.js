@@ -20,7 +20,7 @@
   }
 
   // Given the JSON data and a specified column name,
-  // group by the column, compute the value counts and the average age
+  // group by the column, compute the value counts and the average age and average time served
   function transformData(data, col) {
     var transformed = d3
       .nest()
@@ -29,7 +29,7 @@
         return {
           amount: d.length,
           ageAvg: d3.mean(d.map(function (correspondent) { return correspondent.age; })),
-          avgTimeServed: d3.mean(d.map(function (correspondent) {return correspondent.timeServed; }))
+          avgTimeServed: d3.mean(d.map(function (correspondent) { return correspondent.timeServed; }))
         };
       })
       .entries(data);
@@ -75,10 +75,15 @@
   );
   };
 
-  // bar constants
+  //Title case function for axis title formatting
+  function toTitle(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  // bar constant
   var WIDTH = 600;
   var HEIGHT = 400;
-  var margin = { top: 25, right: 25, bottom: 50, left: 50 };
+  var margin = { top: 25, right: 25, bottom: 75, left: 75 };
   var innerWidth = WIDTH - margin.left - margin.right;
   var innerHeight = HEIGHT - margin.top - margin.bottom;
   var barAdjust = 5; // for adjusting the width of bars
@@ -86,6 +91,7 @@
   var Bar = function (ref) {
     var barData = ref.barData;
     var yAttribute = ref.yAttribute;
+    var xAttribute = ref.xAttribute;
 
     var svg = d3$1.select("svg");
 
@@ -139,6 +145,25 @@
         d3$1.select(this).style("opacity", 0.7);
       });
 
+  //Axis labels
+  	svg
+    	.append("text")
+    	.attr("transform", "rotate(-90)")
+    	.attr('class', 'ylabel')
+    	.attr("y", 0)
+    	.attr("x", 0 - HEIGHT/2)
+    	.attr("dy", "1em")
+    	.style("text-anchor", "middle")
+    	.text(toTitle(yAttribute));
+  svg
+    	.append("text")
+    	.attr('class', 'xlabel')
+    	.attr("y", HEIGHT - margin.bottom)
+    	.attr("x", 0 + WIDTH/2)
+    	.attr("dy", "3em")
+    	.style("text-anchor", "middle")
+    	.text(toTitle(xAttribute)); //Need to restructure to pass xAttribute to this function as well
+
     return React.createElement( React.Fragment, null ); //d3 draws the graph, thus return nothing
   };
 
@@ -175,7 +200,7 @@
         React.createElement( Dropdown, {
           options: yFields, id: "y-select", selectedValue: yAttribute, onSelectedValueChange: setYAttribute }),
 
-        React.createElement( Bar, { barData: barData, yAttribute: yAttribute })
+        React.createElement( Bar, { barData: barData, yAttribute: yAttribute, xAttribute: xAttribute })
       )
     );
   };
