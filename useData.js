@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
 
 const jsonURL =
-  "https://gist.githubusercontent.com/aulichney/d4589c85658f1a2248b143dfd62005b4/raw/1b7c1826210517d3baa7c687de2b21e11ccdb1bf/undercustodymod.json";
-
-let output = true;
+  "https://gist.githubusercontent.com/aulichney/d4589c85658f1a2248b143dfd62005b4/raw/3b10ecd311754f3c2234d6c880622d33ad7d176f/undercustodymod.json";
 
 // helper function; clean the data
 function cleanData(row) {
   return {
     sex: row.sex,
     age: Number(row.age),
-    race: row.race,
-    ethnicity: row.ethnicGroup,
+    raceEthnicity: row.raceEthnicity,
+    timeServed: row.timeServed
   };
 }
 
@@ -25,6 +23,7 @@ export function transformData(data, col) {
       return {
         amount: d.length,
         ageAvg: d3.mean(d.map((correspondent) => correspondent.age)),
+        avgTimeServed: d3.mean(d.map(function (correspondent) {return correspondent.timeServed; }))
       };
     })
     .entries(data);
