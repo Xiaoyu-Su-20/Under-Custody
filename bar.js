@@ -4,17 +4,22 @@ import { transformData } from "./useData";
 import { Dropdown } from "./Dropdown";
 
 
-// bar constants 
+// bar constants
 const WIDTH = 500;
 const HEIGHT= 300;
-const margin={top: 25, right: 25, bottom: 50, left: 50};
+const margin={top: 25, right: 25, bottom: 75, left: 75};
 const innerWidth = WIDTH - margin.left - margin.right;
 const innerHeight = HEIGHT - margin.top - margin.bottom;
 
 
 //sort constant, 'none'; 'height': sort by height descendant; 'x': sort by x value
-let sorted = 'none'; 
+let sorted = 'none';
 const SORT_DURATION = 500;
+
+//Title case function for axis title formatting
+function toTitle(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 const Svg = (ref) => {
   // the temporary solution is this, prevent react from appending svgs indefinitely
@@ -27,14 +32,14 @@ const Svg = (ref) => {
 }
 
 
-const Bar = (ref_radio, barData, yAttribute) => {
+const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
   	console.log(barData.length)
 		const barAdjust = 5 / barData.length // for adjusting the width of bars
-  
+
     const svg = d3.select("svg")
 
     // remove everything from svg and rerender objects
-    svg.selectAll("*").remove();  
+    svg.selectAll("*").remove();
 
     // draw axes
     const xScale = d3.scaleBand()
@@ -75,12 +80,31 @@ const Bar = (ref_radio, barData, yAttribute) => {
 				d3.select(this)
   				.style("opacity", 0.7);
 			});
-      
-  	// radio button calls sort function on click 
+
+    //Axis labels
+  	svg
+    	.append("text")
+    	.attr("transform", "rotate(-90)")
+    	.attr('class', 'ylabel')
+    	.attr("y", 0)
+    	.attr("x", 0 - HEIGHT/2)
+    	.attr("dy", "0.75em")
+    	.style("text-anchor", "middle")
+    	.text(toTitle(yAttribute));
+  svg
+    	.append("text")
+    	.attr('class', 'xlabel')
+    	.attr("y", HEIGHT - margin.bottom)
+    	.attr("x", 0 + WIDTH/2)
+    	.attr("dy", "1.5em")
+    	.style("text-anchor", "middle")
+    	.text(toTitle(xAttribute));
+
+  	// radio button calls sort function on click
   	d3.select(ref_radio)
     .selectAll("input")
     .on("click", sort)
-  
+
     //if sorted=='height'
     if (sorted == 'height') {
     const new_data = barData.slice()
@@ -88,17 +112,17 @@ const Bar = (ref_radio, barData, yAttribute) => {
     change_data(new_data, 0);
     } else if (sorted == 'x') { //if sorted=='x'
     const new_data = barData.slice().sort((a,b) => d3.ascending(a.key, b.key));
-    change_data(new_data, 0);      
+    change_data(new_data, 0);
     }
-	
-  
+
+
   function change_data(new_data, duration, delay=0) {
     //change the axis generator
     xScale.domain(new_data.map(d => d.key));
     svg.select(".xAxis")
     .transition().duration(duration).ease(d3.easeLinear)
     .call(xAxis);
-    
+
     // change bars
     const bars = svg.selectAll("rect").data(new_data, d => d.key)
     bars.transition().delay(delay).duration(duration).ease(d3.easeLinear)
@@ -110,7 +134,7 @@ const Bar = (ref_radio, barData, yAttribute) => {
 
   function sort() {
     let action = d3.select(this).node().value
-    
+
     if (action == "height"){
       const new_data = barData.slice().sort((a,b) => d3.ascending(b.value[yAttribute], a.value[yAttribute]));
       change_data(new_data, SORT_DURATION);
@@ -119,33 +143,33 @@ const Bar = (ref_radio, barData, yAttribute) => {
       const new_data = barData.slice().sort((a,b) => d3.ascending(a.key, b.key));
       change_data(new_data, SORT_DURATION);
       sorted = 'x';
-    }  
+    }
   };
 };
 
 
 
 export const Chart = ( {rawData} ) => {
-  
-  // create React hooks for controlling the grouped data we want to generate; also, setup the initial value 
+
+  // create React hooks for controlling the grouped data we want to generate; also, setup the initial value
   const [xAttribute, setXAttribute] = useState('sex');
   const [yAttribute, setYAttribute] = useState('amount');
-  
+
   // according to the current xAttr ibute, group by that attribute and compute the number of observations and the average age
   const barData = transformData(rawData, xAttribute)
-  
+
   // console.log(barData)
 
-  // map each column to { value: col, label: col } to feed into react Dropdown menu 
+  // map each column to { value: col, label: col } to feed into react Dropdown menu
   const xFields = Object.keys(rawData[0]).map(d => ({"value":d, "label":d}));
 
   const yFields = Object.keys(barData[0].value).map(d => ({"value":d, "label":d}));
 
-  // return the title, the dropdown menus, and the barplot with axes  
+  // return the title, the dropdown menus, and the barplot with axes
 	return(
     <>
       <h1 ref={d => Svg(d)}> Under Custody Data Visualization with Filters</h1>
-			
+
       <label for="x-select">X:</label>
       <Dropdown
         options={xFields}
@@ -159,13 +183,13 @@ export const Chart = ( {rawData} ) => {
         id="y-select"
         selectedValue={yAttribute}
         onSelectedValueChange={setYAttribute}
-      />    
+      />
 
-      
-      <div id='radio_sort' ref={d => Bar(d, barData, yAttribute)}>
+
+      <div id='radio_sort' ref={d => Bar(d, barData, yAttribute, xAttribute)}>
         <input type="radio" value="height" name="sort" /> Sort by Height
-        <input type="radio" value="other" name="sort" /> Sort by X Value 
-      </div> 
+        <input type="radio" value="other" name="sort" /> Sort by X Value
+      </div>
 		</>
 	);
 };
