@@ -165,7 +165,7 @@ export const Chart = ( {rawData} ) => {
 
   const yFields = Object.keys(barData[0].value).map(d => ({"value":d, "label":d}));
 
-  // return the title, the dropdown menus, and the barplot with axes  
+  // return the title, the dropdown menus, and the barplot with axes
 	return(
     <>
       <h1 ref={d => Svg(d)}> Under Custody Data Visualization with Filters</h1>
