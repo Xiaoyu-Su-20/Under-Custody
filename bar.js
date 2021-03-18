@@ -96,7 +96,7 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
     	.attr('class', 'xlabel')
     	.attr("y", HEIGHT - margin.bottom)
     	.attr("x", 0 + WIDTH/2)
-    	.attr("dy", "1.5em")
+    	.attr("dy", "2em")
     	.style("text-anchor", "middle")
     	.text(toTitle(xAttribute));
 
@@ -147,7 +147,90 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
   };
 };
 
+//Table
+const Table = ({ barData, yAttribute, xAttribute}) => {
+  const xScale = d3
+    .scaleBand()
+    .domain(barData.map((d) => d.key))
+    .range([0, innerWidth])
+    .paddingInner([0.2]);
 
+  const yScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(barData.map((d) => d.value[yAttribute]))])
+    .range([innerHeight, 0]);
+
+  //create arrays of values that will fill table
+  const count = barData.map((d) => d.value[yAttribute]); //count for each category
+  const yTotal = d3.sum(count) //total number individuals
+  const xLength = xScale.domain().length //number of categories for the givenn x attribute
+  const pct = barData.map((d) => d.value[yAttribute]/yTotal * 100); //percent of total for each category
+
+
+  let rows = [];
+
+  //Fill first row with table headings
+  for (var i = 0; i < 1; i++){
+      let rowID = `row${i}`
+      let cell = []
+      for (var idx = 0; idx < 1; idx++){
+        let cellID = `cell${i}-${idx}`
+        cell.push(<td key={cellID} id={cellID}>{toTitle(xAttribute)}</td>)
+      }
+   	 for (var idx = 1; idx < 2; idx++){
+        let cellID = `cell${i}-${idx}`
+        cell.push(<td key={cellID} id={cellID}>Count</td>)
+      }
+    	for (var idx = 2; idx < 3; idx++){
+        let cellID = `cell${i}-${idx}`
+        cell.push(<td key={cellID} id={cellID}>Percent</td>)
+      }
+      rows.push(<tr key={i} id={rowID}>{cell}</tr>)
+    };
+
+  //Fill table by column. Col 1 is each category for the given xattribute. Col 2 is the value for each category.
+  //Col 3 is percent of total population for each category
+  for (var i = 1; i < xLength + 1; i++){
+      let rowID = `row${i}`
+      let cell = []
+      for (var idx = 0; idx < 1; idx++){
+        let cellID = `cell${i}-${idx}`
+        let entry = xScale.domain()[i-1]
+        cell.push(<td key={cellID} id={cellID}>{entry}</td>)
+      }
+    	for (var idx = 1; idx < 2; idx++){
+        let cellID = `cell${i}-${idx}`
+        let entry = count[i-1].toFixed(0)
+        cell.push(<td key={cellID} id={cellID}>{entry}</td>)
+      }
+    	for (var idx = 2; idx < 3; idx++){
+        let cellID = `cell${i}-${idx}`
+        let entry = pct[i-1].toFixed(2)
+        cell.push(<td key={cellID} id={cellID}>{entry}%</td>)
+      }
+      rows.push(<tr key={i} id={rowID}>{cell}</tr>)
+    };
+
+
+
+  //create table element with rows
+  const tableElement = (
+            <table id="dynamic-table">
+               <tbody>
+                 {rows}
+               </tbody>
+             </table>
+      );
+
+
+//render table
+  ReactDOM.render(tableElement, document.getElementById('table'));
+  ReactDOM.render(<p>Total Number of People Under Custody: 36072</p>, document.getElementById('summary'));
+
+
+
+  return <></>;
+};
 
 export const Chart = ( {rawData} ) => {
 
@@ -190,6 +273,10 @@ export const Chart = ( {rawData} ) => {
         <input type="radio" value="height" name="sort" /> Sort by Height
         <input type="radio" value="other" name="sort" /> Sort by X Value
       </div>
+
+      <Table barData={barData} yAttribute={yAttribute} xAttribute = {xAttribute}/>
+
+
 		</>
 	);
 };

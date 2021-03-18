@@ -1,10 +1,10 @@
-(function (React$1, ReactDOM) {
+(function (React$1, ReactDOM$1) {
   'use strict';
 
   function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
   var React__default = /*#__PURE__*/_interopDefaultLegacy(React$1);
-  var ReactDOM__default = /*#__PURE__*/_interopDefaultLegacy(ReactDOM);
+  var ReactDOM__default = /*#__PURE__*/_interopDefaultLegacy(ReactDOM$1);
 
   var jsonURL =
     "https://gist.githubusercontent.com/aulichney/d4589c85658f1a2248b143dfd62005b4/raw/3b10ecd311754f3c2234d6c880622d33ad7d176f/undercustodymod.json";
@@ -167,7 +167,7 @@
       	.attr('class', 'xlabel')
       	.attr("y", HEIGHT - margin.bottom)
       	.attr("x", 0 + WIDTH/2)
-      	.attr("dy", "1.5em")
+      	.attr("dy", "2em")
       	.style("text-anchor", "middle")
       	.text(toTitle(xAttribute));
 
@@ -218,7 +218,92 @@
       }
     }};
 
+  //Table
+  var Table = function (ref) {
+    var barData = ref.barData;
+    var yAttribute = ref.yAttribute;
+    var xAttribute = ref.xAttribute;
 
+    var xScale = d3
+      .scaleBand()
+      .domain(barData.map(function (d) { return d.key; }))
+      .range([0, innerWidth])
+      .paddingInner([0.2]);
+
+    d3
+      .scaleLinear()
+      .domain([0, d3.max(barData.map(function (d) { return d.value[yAttribute]; }))])
+      .range([innerHeight, 0]);
+
+    //create arrays of values that will fill table
+    var count = barData.map(function (d) { return d.value[yAttribute]; }); //count for each category
+    var yTotal = d3.sum(count); //total number individuals
+    var xLength = xScale.domain().length; //number of categories for the givenn x attribute
+    var pct = barData.map(function (d) { return d.value[yAttribute]/yTotal * 100; }); //percent of total for each category
+
+
+    var rows = [];
+
+    //Fill first row with table headings
+    for (var i = 0; i < 1; i++){
+        var rowID = "row" + i;
+        var cell = [];
+        for (var idx = 0; idx < 1; idx++){
+          var cellID = "cell" + i + "-" + idx;
+          cell.push(React.createElement( 'td', { key: cellID, id: cellID }, toTitle(xAttribute)));
+        }
+     	 for (var idx = 1; idx < 2; idx++){
+          var cellID$1 = "cell" + i + "-" + idx;
+          cell.push(React.createElement( 'td', { key: cellID$1, id: cellID$1 }, "Count"));
+        }
+      	for (var idx = 2; idx < 3; idx++){
+          var cellID$2 = "cell" + i + "-" + idx;
+          cell.push(React.createElement( 'td', { key: cellID$2, id: cellID$2 }, "Percent"));
+        }
+        rows.push(React.createElement( 'tr', { key: i, id: rowID }, cell));
+      }
+    //Fill table by column. Col 1 is each category for the given xattribute. Col 2 is the value for each category.
+    //Col 3 is percent of total population for each category
+    for (var i = 1; i < xLength + 1; i++){
+        var rowID$1 = "row" + i;
+        var cell$1 = [];
+        for (var idx = 0; idx < 1; idx++){
+          var cellID$3 = "cell" + i + "-" + idx;
+          var entry = xScale.domain()[i-1];
+          cell$1.push(React.createElement( 'td', { key: cellID$3, id: cellID$3 }, entry));
+        }
+      	for (var idx = 1; idx < 2; idx++){
+          var cellID$4 = "cell" + i + "-" + idx;
+          var entry$1 = count[i-1].toFixed(0);
+          cell$1.push(React.createElement( 'td', { key: cellID$4, id: cellID$4 }, entry$1));
+        }
+      	for (var idx = 2; idx < 3; idx++){
+          var cellID$5 = "cell" + i + "-" + idx;
+          var entry$2 = pct[i-1].toFixed(2);
+          cell$1.push(React.createElement( 'td', { key: cellID$5, id: cellID$5 }, entry$2, "%"));
+        }
+        rows.push(React.createElement( 'tr', { key: i, id: rowID$1 }, cell$1));
+      }
+
+
+    //create table element with rows
+    var tableElement = (
+              React.createElement( 'table', { id: "dynamic-table" },
+                 React.createElement( 'tbody', null,
+                   rows
+                 )
+               )
+        );
+
+
+  //render table
+    ReactDOM.render(tableElement, document.getElementById('table'));
+    ReactDOM.render(React.createElement( 'p', null, "Total Number of People Under Custody: 36072" ), document.getElementById('summary'));
+
+
+
+    return React.createElement( React.Fragment, null );
+  };
 
   var Chart = function ( ref ) {
     var rawData = ref.rawData;
@@ -256,7 +341,11 @@
 
 
         React.createElement( 'div', { id: 'radio_sort', ref: function (d) { return Bar(d, barData, yAttribute, xAttribute); } },
-          React.createElement( 'input', { type: "radio", value: "height", name: "sort" }), " Sort by Height ", React.createElement( 'input', { type: "radio", value: "other", name: "sort" }), " Sort by X Value")
+          React.createElement( 'input', { type: "radio", value: "height", name: "sort" }), " Sort by Height ", React.createElement( 'input', { type: "radio", value: "other", name: "sort" }), " Sort by X Value"),
+
+        React.createElement( Table, { barData: barData, yAttribute: yAttribute, xAttribute: xAttribute })
+
+
   		)
   	);
   };
