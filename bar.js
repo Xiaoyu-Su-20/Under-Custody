@@ -52,6 +52,24 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
 
     const xAxis = d3.axisBottom().scale(xScale);
     const yAxis = d3.axisLeft().scale(yScale);
+    const totalPop = d3.sum(barData.map((d) => d.value[yAttribute])); //counts number of individuals in custody
+
+
+
+    //moueover tooltip
+    const tooltip = d3
+                    .select('body')
+                    .append('div')
+                    .attr('class', 'd3-tooltip')
+                    .style('position', 'absolute')
+                    .style('z-index', '10')
+                    .style('visibility', 'hidden')
+                    .style('padding', '10px')
+                    .style('background', 'rgba(0,0,0,0.6)')
+                    .style('border-radius', '4px')
+                    .style('color', '#fff')
+                    .text('a simple tooltip');
+
 
     svg.append("g")
       .attr("class", "xAxis")
@@ -73,13 +91,26 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
       .attr("width", xScale.bandwidth()-barAdjust*2)
       .attr("height", d => innerHeight - yScale(d.value[yAttribute]))
       .style('opacity', 0.7)
-  		.on("mouseover", function(d){
-				d3.select(this)
-  				.style("opacity", 1);
-			}).on("mouseout", function(d){
-				d3.select(this)
-  				.style("opacity", 0.7);
-			});
+  		.on('mouseover', function (d, i) {
+          tooltip
+            .html(
+              `<div>${toTitle(xAttribute)}: ${d.key}</div>
+              <div>${toTitle(yAttribute)}: ${d.value[yAttribute].toFixed(2)}</div>
+              <div>Percent: ${(d.value[yAttribute]/totalPop*100).toFixed(2)}%</div>`
+            )
+            .style('visibility', 'visible');
+          d3.select(this).style("opacity", 1);
+      })
+  		.on('mousemove', function () {
+          tooltip
+            .style('top', d3.event.pageY - 10 + 'px')
+            .style('left', d3.event.pageX + 10 + 'px');
+      })
+  		.on('mouseout', function () {
+          tooltip.html(``).style('visibility', 'hidden');
+          d3.select(this).style("opacity", 0.7);
+      });
+
 
     //Axis labels
   	svg
