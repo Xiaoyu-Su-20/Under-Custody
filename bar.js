@@ -1,27 +1,37 @@
+import ReactDropdown from 'react-dropdown';
+
 import { useState, useEffect } from "react";
 import { select, axisBottom, axisLeft } from "d3";
 import { transformData } from "./useData";
-import { Dropdown } from "./Dropdown";
 
 
-// bar constants
-const WIDTH = 500;
-const HEIGHT= 300;
-const margin={top: 25, right: 25, bottom: 75, left: 75};
+// bar constants 
+const WIDTH = 600;
+const HEIGHT= 400;
+const margin={top: 25, right: 25, bottom: 50, left: 80};
 const innerWidth = WIDTH - margin.left - margin.right;
 const innerHeight = HEIGHT - margin.top - margin.bottom;
-
-
-//sort constant, 'none'; 'height': sort by height descendant; 'x': sort by x value
-let sorted = 'none';
-const SORT_DURATION = 500;
 
 //Title case function for axis title formatting
 function toTitle(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-const Svg = (ref) => {
+
+//sort constant, 'none'; 'height': sort by height descendant; 'x': sort by x value
+let sort_status = 'none'; 
+const SORT_DURATION = 500;
+
+// determine if the string represents a number
+function isNumeric(str) {
+  if (typeof str != "string") return false // we only process strings!  
+  return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+         !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+}
+
+
+// create the svg object 
+const SVG = (ref) => {
   // the temporary solution is this, prevent react from appending svgs indefinitely
   	if (d3.selectAll("svg").empty()) {
       d3.select(ref)
@@ -33,53 +43,21 @@ const Svg = (ref) => {
 
 
 const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
-  	console.log(barData.length)
+
 		const barAdjust = 5 / barData.length // for adjusting the width of bars
-
     const svg = d3.select("svg")
-
     // remove everything from svg and rerender objects
-    svg.selectAll("*").remove();
+    svg.selectAll("*").remove();  
 
-    // draw axes
     const xScale = d3.scaleBand()
-                   .domain(barData.map(d => d.key))
-                   .range([0, innerWidth])
-                   .paddingInner([.2]);
+               .domain(barData.map(d => d.key))
+               .range([0, innerWidth])
+               .paddingInner([.2]);
     const yScale = d3.scaleLinear()
                    .domain([0, d3.max( barData.map(d => d.value[yAttribute]) )] )
-                   .range([innerHeight, 0])
-
-    const xAxis = d3.axisBottom().scale(xScale);
-    const yAxis = d3.axisLeft().scale(yScale);
-    const totalPop = d3.sum(barData.map((d) => d.value[yAttribute])); //counts number of individuals in custody
-
-
-
-    //moueover tooltip
-    const tooltip = d3
-                    .select('body')
-                    .append('div')
-                    .attr('class', 'd3-tooltip')
-                    .style('position', 'absolute')
-                    .style('z-index', '10')
-                    .style('visibility', 'hidden')
-                    .style('padding', '10px')
-                    .style('background', 'rgba(0,0,0,0.6)')
-                    .style('border-radius', '4px')
-                    .style('color', '#fff')
-                    .text('a simple tooltip');
-
-
-    svg.append("g")
-      .attr("class", "xAxis")
-      .attr("transform", `translate (${margin.left}, ${HEIGHT - margin.bottom})`)
-      .call(xAxis);
-    svg.append("g")
-      .attr("class", "yAxis")
-      .attr("transform", `translate (${margin.left}, ${margin.top})`)
-      .call(yAxis);
-
+                   .range([innerHeight, 0]).nice();
+		
+    //--------------------------------------------------------------------------------
     // draw initial bars
     const bars = svg.append('g')
                       .attr("transform", `translate (${margin.left}, ${margin.top})`)
@@ -110,72 +88,116 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
           tooltip.html(``).style('visibility', 'hidden');
           d3.select(this).style("opacity", 0.7);
       });
+  
+  	
+    //moueover tooltip
+    const totalPop = d3.sum(barData.map((d) => d.value[yAttribute])); //counts number of individuals in custody
+    const tooltip = d3
+                    .select('body')
+                    .append('div')
+                    .attr('class', 'd3-tooltip')
+                    .style('position', 'absolute')
+                    .style('z-index', '10')
+                    .style('visibility', 'hidden')
+                    .style('padding', '10px')
+                    .style('background', 'rgba(0,0,0,0.6)')
+                    .style('border-radius', '4px')
+                    .style('color', '#fff')
+                    .text('a simple tooltip');
+  
+  
+  
+  	//--------------------------------------------------------------------------------
+    // draw axes
 
 
+    const xAxis = d3.axisBottom().scale(xScale);
+    const yAxis = d3.axisLeft().scale(yScale);
+
+    svg.append("g")
+      .attr("class", "axis")
+  		.attr("id", "xAxis")
+      .attr("transform", `translate (${margin.left}, ${HEIGHT - margin.bottom})`)
+      .call(xAxis);
+    svg.append("g")
+      .attr("class", "axis")
+      .attr("transform", `translate (${margin.left}, ${margin.top})`)
+      .call(yAxis);
+  	
+  	//--------------------------------------------------------------------------------
     //Axis labels
-  	svg
-    	.append("text")
-    	.attr("transform", "rotate(-90)")
-    	.attr('class', 'ylabel')
-    	.attr("y", 0)
-    	.attr("x", 0 - HEIGHT/2)
-    	.attr("dy", "0.75em")
-    	.style("text-anchor", "middle")
-    	.text(toTitle(yAttribute));
-  svg
-    	.append("text")
-    	.attr('class', 'xlabel')
-    	.attr("y", HEIGHT - margin.bottom)
-    	.attr("x", 0 + WIDTH/2)
-    	.attr("dy", "2em")
-    	.style("text-anchor", "middle")
-    	.text(toTitle(xAttribute));
-
-  	// radio button calls sort function on click
+    svg
+      .append("text")
+  		.attr("class", "axis-label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0)
+      .attr("x", 0 - HEIGHT/2)
+      .attr("dy", "1em")
+      .text(toTitle(yAttribute));
+    svg
+      .append("text")
+      .attr('class', 'axis-label')
+      .attr("y", HEIGHT - margin.bottom)
+      .attr("x", 0 + WIDTH/2)
+      .attr("dy", "1.5em")
+      .text(toTitle(xAttribute));
+  	
+ 	 	//--------------------------------------------------------------------------------
+  	// sorting 
+  	// radio button calls sort function on click 
   	d3.select(ref_radio)
     .selectAll("input")
     .on("click", sort)
+		
+    // sort when changing dropdown menu given the sorted button is already selected
+    sort(sort_status)
+  	
 
-    //if sorted=='height'
-    if (sorted == 'height') {
-    const new_data = barData.slice()
-                  .sort((a,b) => d3.ascending(b.value[yAttribute], a.value[yAttribute]));
-    change_data(new_data, 0);
-    } else if (sorted == 'x') { //if sorted=='x'
-    const new_data = barData.slice().sort((a,b) => d3.ascending(a.key, b.key));
-    change_data(new_data, 0);
-    }
+    function change_data(new_data, duration, delay=0) {
+      //change the axis generator
+      xScale.domain(new_data.map(d => d.key));
+      svg.select("#xAxis")
+      .transition().duration(duration).ease(d3.easeLinear)
+      .call(xAxis);
 
+      // change bars
+      const bars = svg.selectAll("rect").data(new_data, d => d.key)
+      bars.transition().delay(delay).duration(duration).ease(d3.easeLinear)
+            .attr("x", (d, i) => xScale(d.key)+barAdjust)
+            .attr("y", d => yScale(d.value[yAttribute]))
+            .attr("width", xScale.bandwidth()-barAdjust*2)
+            .attr("height", d => innerHeight - yScale(d.value[yAttribute]))
+    };
+  
+    // argument is optional, used when changing dropdown menu given the sorted button is already selected
+    function sort(arg) {   
 
-  function change_data(new_data, duration, delay=0) {
-    //change the axis generator
-    xScale.domain(new_data.map(d => d.key));
-    svg.select(".xAxis")
-    .transition().duration(duration).ease(d3.easeLinear)
-    .call(xAxis);
+      if (typeof arg == 'string') { // when changing dropdown menu given the sorted button is already selected
+        var action = arg
+        var duration = 0
+      } else { // when no argument is passed into sort, get value from the radio button 
+        var action = d3.select(this).node().value;
+        var duration = SORT_DURATION;  
+      }
+      	console.log(action)
 
-    // change bars
-    const bars = svg.selectAll("rect").data(new_data, d => d.key)
-    bars.transition().delay(delay).duration(duration).ease(d3.easeLinear)
-          .attr("x", (d, i) => xScale(d.key)+barAdjust)
-          .attr("y", d => yScale(d.value[yAttribute]))
-          .attr("width", xScale.bandwidth()-barAdjust*2)
-          .attr("height", d => innerHeight - yScale(d.value[yAttribute]))
-	};
-
-  function sort() {
-    let action = d3.select(this).node().value
-
-    if (action == "height"){
-      const new_data = barData.slice().sort((a,b) => d3.ascending(b.value[yAttribute], a.value[yAttribute]));
-      change_data(new_data, SORT_DURATION);
-      sorted = 'height';
-    } else {
-      const new_data = barData.slice().sort((a,b) => d3.ascending(a.key, b.key));
-      change_data(new_data, SORT_DURATION);
-      sorted = 'x';
-    }
-  };
+      if (action == "height"){
+        const new_data = barData.slice().sort((a,b) => d3.ascending(b.value[yAttribute], a.value[yAttribute]));
+        change_data(new_data, duration);
+        sort_status = 'height';
+      } else if (action == 'x') {
+        // if the str is a number, compare the number, not the strings. If we can process the 
+        // data so that the key remains numeric data type in the transform function, we don't need this step       
+        if (isNumeric(barData[0].key) == true) {
+          var new_data = barData.slice().sort((a,b) => d3.ascending(parseInt(a.key), parseInt(b.key)));
+        } else {
+          var new_data = barData.slice().sort((a,b) => d3.ascending(a.key, b.key));
+        }
+        change_data(new_data, duration)
+        sort_status = 'x';
+      }  
+    };
+  
 };
 
 //Table
@@ -258,56 +280,60 @@ const Table = ({ barData, yAttribute, xAttribute}) => {
   ReactDOM.render(tableElement, document.getElementById('table'));
   ReactDOM.render(<p>Total Number of People Under Custody: 36072</p>, document.getElementById('summary'));
 
-
-
-  return <></>;
+  return (<></>);
 };
 
 export const Chart = ( {rawData} ) => {
-
-  // create React hooks for controlling the grouped data we want to generate; also, setup the initial value
+  
+  // create React hooks for controlling the grouped data we want to generate; also, setup the initial value 
   const [xAttribute, setXAttribute] = useState('sex');
   const [yAttribute, setYAttribute] = useState('amount');
-
+  
   // according to the current xAttr ibute, group by that attribute and compute the number of observations and the average age
   const barData = transformData(rawData, xAttribute)
+  
+  console.log(barData)
 
-  // console.log(barData)
-
-  // map each column to { value: col, label: col } to feed into react Dropdown menu
+  // map each column to { value: col, label: col } to feed into react Dropdown menu 
   const xFields = Object.keys(rawData[0]).map(d => ({"value":d, "label":d}));
 
   const yFields = Object.keys(barData[0].value).map(d => ({"value":d, "label":d}));
 
-  // return the title, the dropdown menus, and the barplot with axes
+  // return the title, the dropdown menus, and the barplot with axes  
 	return(
     <>
-      <h1 ref={d => Svg(d)}> Under Custody Data Visualization with Filters</h1>
-
-      <label for="x-select">X:</label>
-      <Dropdown
+      <h1 ref={d => SVG(d)}> Under Custody Data Visualization with Filters</h1>
+			
+      <div className='menu-container'>
+      <span className="dropdown-label">X</span>
+      <ReactDropdown
         options={xFields}
-        id="x-select"
-        selectedValue={xAttribute}
-        onSelectedValueChange={setXAttribute}
+        value={xAttribute}
+        onChange={({value, label}) => setXAttribute(value)}
       />
-      <label for="y-select">Y:</label>
-      <Dropdown
+      <span className="dropdown-label">Y</span>
+      <ReactDropdown
         options={yFields}
-        id="y-select"
-        selectedValue={yAttribute}
-        onSelectedValueChange={setYAttribute}
+        value={yAttribute}
+        onChange={({value, label}) => setYAttribute(value)}
       />
-
-
-      <div id='radio_sort' ref={d => Bar(d, barData, yAttribute, xAttribute)}>
-        <input type="radio" value="height" name="sort" /> Sort by Height
-        <input type="radio" value="other" name="sort" /> Sort by X Value
       </div>
-
-      <Table barData={barData} yAttribute={yAttribute} xAttribute = {xAttribute}/>
-
-
+      
+			<div id='radio_sort' ref={d => Bar(d, barData, yAttribute, xAttribute)} class="control-group">
+        <label class="control control-radio">
+            Sort by Height
+            <input  className='radio' type="radio" value="height" name="sort" /> 
+            <div class="control_indicator"></div>
+        </label>
+        <label class="control control-radio">
+            Sort by X Value 
+            <input className='radio' type="radio" value="x" name="sort" /> 
+            <div class="control_indicator"></div>
+        </label>
+    </div>
+      
+      
+    <Table barData={barData} yAttribute={yAttribute} xAttribute = {xAttribute}/>
 		</>
 	);
 };

@@ -1,21 +1,126 @@
-label {
-  font-size: 1.5em;
-  fill: #635F5D;
-}
-select {
-  font-size: 1em;
-}
-select option {
-  font-size: 1rem;
+:root {
+  --grey: #635F5D;
 }
 
+.menu-container {
+  margin-top: 20px;
+  margin-right: 20px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+
+/* axes */
+.axis {
+	stroke-width: 2px;
+}
+
+.axis line {
+  stroke: var(--grey);
+}
+.axis path{
+  stroke: var(--grey);
+}
+.axis text{
+  fill: black;
+}
+
+.axis-label {
+  font-size: 1em;
+  dy: 1em;
+  text-anchor: middle;
+  fill: black;
+}
+
+
+
+.dropdown-label{
+  margin-left: 80px;
+  margin-right: 20px;
+}
+.Dropdown-root {
+  font-size: 1.5em;
+  width: 200px;
+  display: inline-block;
+}
+.dropdown-label {
+  font-size: 2em;
+  fill: var(--grey);
+  color: var(--grey);
+}
+.Dropdown-menu {
+  max-height: 300px;
+}
+
+
+/* radio button */
+.control {
+    font-family: Times New Roman;
+    display: block;
+    position: relative;
+    padding-left: 120px;
+    margin-bottom: 10px;
+    padding-top: 7px;
+    cursor: pointer;
+    font-size: 16px;
+  	fill: var(--grey);
+  	color: var(--grey);
+}
+    .control input {
+        position: absolute;
+        z-index: -1;
+        opacity: 0;
+    }
+.control_indicator {
+    position: absolute;
+    top: 2px;
+    left: 80px;
+    height: 20px;
+    width: 20px;
+    background: #e6e6e6;
+    border: 1px solid #000000;
+    border-radius: undefinedpx;
+}
+.control:hover input ~ .control_indicator,
+.control input:focus ~ .control_indicator {
+    background: #cccccc;
+}
+
+.control input:checked ~ .control_indicator {
+    background: #2aa1c0;
+}
+.control:hover input:not([disabled]):checked ~ .control_indicator,
+.control input:checked:focus ~ .control_indicator {
+    background: #0e6647d;
+}
+.control input:disabled ~ .control_indicator {
+    background: #e6e6e6;
+    opacity: 0.6;
+    pointer-events: none;
+}
+.control_indicator:after {
+    box-sizing: unset;
+    content: '';
+    position: absolute;
+    display: none;
+}
+.control input:checked ~ .control_indicator:after {
+    display: block;
+}
+.control-radio .control_indicator {
+    border-radius: 50%;
+}
+
+
 rect {
- fill:#67c0e0;
+ fill:#67c0e0; 
  stroke-width:1.5;
  stroke:#67c0e0;
 }
 
 table, th, td {
+  margin-left: 80px;
   border: 1px solid black;
   border-collapse: collapse;
 }

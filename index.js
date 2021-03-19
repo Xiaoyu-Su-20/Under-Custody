@@ -11,7 +11,7 @@ const App = () => {
     return <h2>Loading...</h2>;
   }
 
-  // console.log(rawData);
+  console.log(rawData);
 
   return (
     <>
