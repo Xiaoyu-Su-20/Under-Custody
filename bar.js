@@ -220,6 +220,7 @@ const Table = ({ barData, yAttribute, xAttribute}) => {
   const pct = barData.map((d) => d.value[yAttribute]/yTotal * 100); //percent of total for each category
 
 
+  let row1 = [];
   let rows = [];
 
   //Fill first row with table headings
@@ -230,15 +231,24 @@ const Table = ({ barData, yAttribute, xAttribute}) => {
         let cellID = `cell${i}-${idx}`
         cell.push(<td key={cellID} id={cellID}>{toTitle(xAttribute)}</td>)
       }
-   	 for (var idx = 1; idx < 2; idx++){
+     if(yAttribute == 'amount'){
+        for (var idx = 1; idx < 2; idx++){
         let cellID = `cell${i}-${idx}`
-        cell.push(<td key={cellID} id={cellID}>Count</td>)
-      }
-    	for (var idx = 2; idx < 3; idx++){
+        cell.push(<td key={cellID} id={cellID}>Population</td>)
+       }
+      }else{
+        for (var idx = 1; idx < 2; idx++){
         let cellID = `cell${i}-${idx}`
-        cell.push(<td key={cellID} id={cellID}>Percent</td>)
+        cell.push(<td key={cellID} id={cellID}>Years</td>)
+      	}
       }
-      rows.push(<tr key={i} id={rowID}>{cell}</tr>)
+    	if(yAttribute == 'amount'){
+        for (var idx = 2; idx < 3; idx++){
+        	let cellID = `cell${i}-${idx}`
+        	cell.push(<td key={cellID} id={cellID}>Percent</td>)
+      	}
+      }
+      row1.push(<tr key={i} id={rowID}>{cell}</tr>)
     };
 
   //Fill table by column. Col 1 is each category for the given xattribute. Col 2 is the value for each category.
@@ -256,10 +266,12 @@ const Table = ({ barData, yAttribute, xAttribute}) => {
         let entry = count[i-1].toFixed(0)
         cell.push(<td key={cellID} id={cellID}>{entry}</td>)
       }
-    	for (var idx = 2; idx < 3; idx++){
-        let cellID = `cell${i}-${idx}`
-        let entry = pct[i-1].toFixed(2)
-        cell.push(<td key={cellID} id={cellID}>{entry}%</td>)
+    	if(yAttribute == 'amount'){
+        for (var idx = 2; idx < 3; idx++){
+          let cellID = `cell${i}-${idx}`
+          let entry = pct[i-1].toFixed(2)
+          cell.push(<td key={cellID} id={cellID}>{entry}%</td>)
+        }
       }
       rows.push(<tr key={i} id={rowID}>{cell}</tr>)
     };
@@ -268,7 +280,10 @@ const Table = ({ barData, yAttribute, xAttribute}) => {
 
   //create table element with rows
   const tableElement = (
-            <table id="dynamic-table">
+            <table id="summary-table">
+              <thead>
+                 {row1}
+               </thead>
                <tbody>
                  {rows}
                </tbody>
@@ -280,7 +295,9 @@ const Table = ({ barData, yAttribute, xAttribute}) => {
   ReactDOM.render(tableElement, document.getElementById('table'));
   ReactDOM.render(<p>Total Number of People Under Custody: 36072</p>, document.getElementById('summary'));
 
-  return (<></>);
+
+
+  return <></>;
 };
 
 export const Chart = ( {rawData} ) => {
@@ -302,7 +319,14 @@ export const Chart = ( {rawData} ) => {
   // return the title, the dropdown menus, and the barplot with axes  
 	return(
     <>
-      <h1 ref={d => SVG(d)}> Under Custody Data Visualization with Filters</h1>
+      <header>
+      <div id="logo">
+            <img src="https://static1.squarespace.com/static/5b2c07e2a9e02851fb387477/t/5c421dc203ce64393d395bb8/1616181909405/?format=1500w" />
+      </div>
+      <h1> NYDOCCS Under Custody Data </h1>
+			</header>
+      
+      <h1 ref={d => SVG(d)}> </h1>
 			
       <div className='menu-container'>
       <span className="dropdown-label">X</span>
@@ -337,3 +361,4 @@ export const Chart = ( {rawData} ) => {
 		</>
 	);
 };
+
