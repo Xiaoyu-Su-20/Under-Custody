@@ -22,14 +22,6 @@ function toTitle(string) {
 let sort_status = 'none'; 
 const SORT_DURATION = 500;
 
-// determine if the string represents a number
-function isNumeric(str) {
-  if (typeof str != "string") return false // we only process strings!  
-  return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-         !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
-}
-
-
 // create the svg object 
 const SVG = (ref) => {
   // the temporary solution is this, prevent react from appending svgs indefinitely
@@ -179,7 +171,7 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
         var action = d3.select(this).node().value;
         var duration = SORT_DURATION;  
       }
-      	console.log(action)
+      // console.log(action)
 
       if (action == "height"){
         const new_data = barData.slice().sort((a,b) => d3.ascending(b.value[yAttribute], a.value[yAttribute]));
@@ -188,7 +180,7 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
       } else if (action == 'x') {
         // if the str is a number, compare the number, not the strings. If we can process the 
         // data so that the key remains numeric data type in the transform function, we don't need this step       
-        if (isNumeric(barData[0].key) == true) {
+        if (barData[0].key.match("\\d+")) {
           var new_data = barData.slice().sort((a,b) => d3.ascending(parseInt(a.key), parseInt(b.key)));
         } else {
           var new_data = barData.slice().sort((a,b) => d3.ascending(a.key, b.key));
@@ -313,6 +305,8 @@ export const Chart = ( {rawData} ) => {
 
   // map each column to { value: col, label: col } to feed into react Dropdown menu 
   const xFields = Object.keys(rawData[0]).map(d => ({"value":d, "label":d}));
+  
+  console.log(xFields)
 
   const yFields = Object.keys(barData[0].value).map(d => ({"value":d, "label":d}));
 
