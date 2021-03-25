@@ -381,12 +381,6 @@
     // return the title, the dropdown menus, and the barplot with axes
   	return(
       React.createElement( React.Fragment, null,
-        React.createElement( 'header', null,
-        React.createElement( 'div', { id: "logo" },
-              React.createElement( 'img', { src: "https://static1.squarespace.com/static/5b2c07e2a9e02851fb387477/t/5c421dc203ce64393d395bb8/1616181909405/?format=1500w" })
-        ),
-        React.createElement( 'h1', null, " NYDOCCS Under Custody Data " )
-  			),
 
         React.createElement( 'h1', { ref: function (d) { return SVG(d); } }, " "),
 

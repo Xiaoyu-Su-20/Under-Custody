@@ -322,12 +322,6 @@ export const Chart = ( {rawData} ) => {
   // return the title, the dropdown menus, and the barplot with axes
 	return(
     <>
-      <header>
-      <div id="logo">
-            <img src="https://static1.squarespace.com/static/5b2c07e2a9e02851fb387477/t/5c421dc203ce64393d395bb8/1616181909405/?format=1500w" />
-      </div>
-      <h1> NYDOCCS Under Custody Data </h1>
-			</header>
 
       <h1 ref={d => SVG(d)}> </h1>
 
