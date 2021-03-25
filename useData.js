@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 const jsonURL =
-  "https://gist.githubusercontent.com/aulichney/d4589c85658f1a2248b143dfd62005b4/raw/3b10ecd311754f3c2234d6c880622d33ad7d176f/undercustodymod.json";
+  "https://gist.githubusercontent.com/aulichney/a88271247a71ed20ebc90ee5019d724e/raw/7b3e0198ad03d680a6f398f248cdc7cffb412a0f/undercustodybinned.json";
 
 // helper function; clean the data
 function cleanData(row) {
@@ -9,7 +9,9 @@ function cleanData(row) {
     sex: row.sex,
     age: Number(row.age),
     raceEthnicity: row.raceEthnicity,
-    timeServed: row.timeServed
+    timeServed: row.timeServed,
+    timeServedBinned: row.timeServedBinned,
+    ageBinned: row.ageBinned
   };
 }
 
