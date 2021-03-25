@@ -116,14 +116,14 @@
         .attr("y", function (d) { return yScale(d.value[yAttribute]); })
         .attr("width", xScale.bandwidth()-barAdjust*2)
         .attr("height", function (d) { return innerHeight - yScale(d.value[yAttribute]); })
-        .style('opacity', 0.7)
+        .style('opacity', 1)
     		.on('mouseover', function (d, i) {
             tooltip
               .html(
                 ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(2))) + "</div>")
               )
               .style('visibility', 'visible');
-            d3.select(this).style("opacity", 1);
+            d3.select(this).style("opacity", 0.7);
         })
     		.on('mousemove', function () {
             tooltip
@@ -132,12 +132,13 @@
         })
     		.on('mouseout', function () {
             tooltip.html("").style('visibility', 'hidden');
-            d3.select(this).style("opacity", 0.7);
+            d3.select(this).style("opacity", 1);
         });
 
 
+
+
       //moueover tooltip
-      d3.sum(barData.map(function (d) { return d.value[yAttribute]; })); //counts number of individuals in custody
       var tooltip = d3
                       .select('body')
                       .append('div')
@@ -251,6 +252,8 @@
     var barData = ref.barData;
     var yAttribute = ref.yAttribute;
     var xAttribute = ref.xAttribute;
+    var totalPopulation = ref.totalPopulation;
+
 
     var xScale = d3
       .scaleBand()
@@ -334,14 +337,14 @@
                  ),
                  React.createElement( 'tbody', null,
                    rows
-                 )
+                 ),
+                 React.createElement( 'caption', null, "Total Number Under Custody: ", formatNumber(totalPopulation) )
                )
         );
 
 
   //render table
     ReactDOM.render(tableElement, document.getElementById('table'));
-    ReactDOM.render(React.createElement( 'p', null, "Total Number of People Under Custody: 36072" ), document.getElementById('summary'));
 
 
 
@@ -362,6 +365,9 @@
 
     // according to the current xAttr ibute, group by that attribute and compute the number of observations and the average age
     var barData = transformData(rawData, xAttribute);
+
+    //count total entries
+    var totalPopulation = rawData.length;
 
     console.log(barData);
 
@@ -413,7 +419,7 @@
       ),
 
 
-      React.createElement( Table, { barData: barData, yAttribute: yAttribute, xAttribute: xAttribute })
+      React.createElement( Table, { barData: barData, yAttribute: yAttribute, xAttribute: xAttribute, totalPopulation: totalPopulation })
   		)
   	);
   };

@@ -65,7 +65,7 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
       .attr("y", d => yScale(d.value[yAttribute]))
       .attr("width", xScale.bandwidth()-barAdjust*2)
       .attr("height", d => innerHeight - yScale(d.value[yAttribute]))
-      .style('opacity', 0.7)
+      .style('opacity', 1)
   		.on('mouseover', function (d, i) {
           tooltip
             .html(
@@ -73,7 +73,7 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
               <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(2))}</div>`
             )
             .style('visibility', 'visible');
-          d3.select(this).style("opacity", 1);
+          d3.select(this).style("opacity", 0.7);
       })
   		.on('mousemove', function () {
           tooltip
@@ -82,12 +82,13 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
       })
   		.on('mouseout', function () {
           tooltip.html(``).style('visibility', 'hidden');
-          d3.select(this).style("opacity", 0.7);
+          d3.select(this).style("opacity", 1);
       });
 
 
+
+
     //moueover tooltip
-    const totalPop = d3.sum(barData.map((d) => d.value[yAttribute])); //counts number of individuals in custody
     const tooltip = d3
                     .select('body')
                     .append('div')
@@ -197,7 +198,8 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
 };
 
 //Table
-const Table = ({ barData, yAttribute, xAttribute}) => {
+const Table = ({ barData, yAttribute, xAttribute, totalPopulation}) => {
+
   const xScale = d3
     .scaleBand()
     .domain(barData.map((d) => d.key))
@@ -283,13 +285,13 @@ const Table = ({ barData, yAttribute, xAttribute}) => {
                <tbody>
                  {rows}
                </tbody>
+               <caption>Total Number Under Custody: {formatNumber(totalPopulation)}</caption>
              </table>
       );
 
 
 //render table
   ReactDOM.render(tableElement, document.getElementById('table'));
-  ReactDOM.render(<p>Total Number of People Under Custody: 36072</p>, document.getElementById('summary'));
 
 
 
@@ -304,6 +306,9 @@ export const Chart = ( {rawData} ) => {
 
   // according to the current xAttr ibute, group by that attribute and compute the number of observations and the average age
   const barData = transformData(rawData, xAttribute)
+
+  //count total entries
+  const totalPopulation = rawData.length;
 
   console.log(barData)
 
@@ -355,7 +360,7 @@ export const Chart = ( {rawData} ) => {
     </div>
 
 
-    <Table barData={barData} yAttribute={yAttribute} xAttribute = {xAttribute}/>
+    <Table barData={barData} yAttribute={yAttribute} xAttribute = {xAttribute} totalPopulation = {totalPopulation}/>
 		</>
 	);
 };

@@ -161,3 +161,10 @@ thead{
 tr:hover {
   background-color: #b0c8cf;
 }
+caption {
+  display: table-caption;
+  text-align: center;
+  caption-side: bottom;
+  padding: 10px;
+	font-weight: 600;
+}
