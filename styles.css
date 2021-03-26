@@ -153,6 +153,7 @@ table, th, td {
  padding: 10px;
 }
 tr:nth-child(even) {background-color: #f2f2f2;}
+td:nth-child(even) {text-align: right;}
 thead{
  font-weight: 800;
  background-color: #328aa2;

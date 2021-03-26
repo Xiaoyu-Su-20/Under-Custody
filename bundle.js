@@ -8,7 +8,7 @@
   var ReactDropdown__default = /*#__PURE__*/_interopDefaultLegacy(ReactDropdown);
 
   var jsonURL =
-    "https://gist.githubusercontent.com/aulichney/a88271247a71ed20ebc90ee5019d724e/raw/7b3e0198ad03d680a6f398f248cdc7cffb412a0f/undercustodybinned.json";
+    "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/af1e852d9ff572d75378903612b983ba9376c932/undercustodygeo.json";
 
   // helper function; clean the data
   function cleanData(row) {
@@ -18,7 +18,10 @@
       raceEthnicity: row.raceEthnicity,
       timeServed: row.timeServed,
       timeServedBinned: row.timeServedBinned,
-      ageBinned: row.ageBinned
+      ageBinned: row.ageBinned,
+      crimeCounty: row.crimeCounty,
+      downstateResident: row.downstateResident,
+      nycResident: row.nycResident
     };
   }
 
