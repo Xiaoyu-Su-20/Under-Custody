@@ -6,9 +6,9 @@ import { transformData } from "./useData";
 
 
 // bar constants
-const WIDTH = 600;
+const WIDTH = 700;
 const HEIGHT= 400;
-const margin={top: 25, right: 25, bottom: 50, left: 80};
+const margin={top: 25, right: 25, bottom: 60, left: 190};
 const innerWidth = WIDTH - margin.left - margin.right;
 const innerHeight = HEIGHT - margin.top - margin.bottom;
 
@@ -124,18 +124,18 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
   	//--------------------------------------------------------------------------------
     //Axis labels
     svg
-      .append("text")
-  		.attr("class", "axis-label")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 0)
-      .attr("x", 0 - HEIGHT/2)
-      .attr("dy", "1em")
-      .text(toTitle(yAttribute));
+    	.append("text")
+    	.attr('class', 'ylabel')
+      .attr('y', 0 + HEIGHT / 2)
+      .attr('x', 0 + margin.left / 2)
+    	.attr("dx", "-0.95em")
+    	.style("text-anchor", "middle")
+    	.text(toTitle(yAttribute));
     svg
       .append("text")
       .attr('class', 'axis-label')
       .attr("y", HEIGHT - margin.bottom)
-      .attr("x", 0 + WIDTH/2)
+      .attr("x", 0 + WIDTH/2 + margin.left/2)
       .attr("dy", "1.5em")
       .text(toTitle(xAttribute));
 

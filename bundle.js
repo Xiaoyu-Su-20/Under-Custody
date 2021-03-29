@@ -8,7 +8,7 @@
   var ReactDropdown__default = /*#__PURE__*/_interopDefaultLegacy(ReactDropdown);
 
   var jsonURL =
-    "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/af1e852d9ff572d75378903612b983ba9376c932/undercustodygeo.json";
+    "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/5bed42ff8cd6d2ebb8c3020a038fb3b0c57b00a8/undercustodygeo.json";
 
   // helper function; clean the data
   function cleanData(row) {
@@ -60,9 +60,9 @@
   };
 
   // bar constants
-  var WIDTH = 600;
+  var WIDTH = 700;
   var HEIGHT= 400;
-  var margin={top: 25, right: 25, bottom: 50, left: 80};
+  var margin={top: 25, right: 25, bottom: 60, left: 190};
   var innerWidth = WIDTH - margin.left - margin.right;
   var innerHeight = HEIGHT - margin.top - margin.bottom;
 
@@ -177,18 +177,18 @@
     	//--------------------------------------------------------------------------------
       //Axis labels
       svg
-        .append("text")
-    		.attr("class", "axis-label")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0)
-        .attr("x", 0 - HEIGHT/2)
-        .attr("dy", "1em")
-        .text(toTitle(yAttribute));
+      	.append("text")
+      	.attr('class', 'ylabel')
+        .attr('y', 0 + HEIGHT / 2)
+        .attr('x', 0 + margin.left / 2)
+      	.attr("dx", "-0.95em")
+      	.style("text-anchor", "middle")
+      	.text(toTitle(yAttribute));
       svg
         .append("text")
         .attr('class', 'axis-label')
         .attr("y", HEIGHT - margin.bottom)
-        .attr("x", 0 + WIDTH/2)
+        .attr("x", 0 + WIDTH/2 + margin.left/2)
         .attr("dy", "1.5em")
         .text(toTitle(xAttribute));
 
