@@ -259,12 +259,20 @@ const Table = ({ barData, yAttribute, xAttribute, totalPopulation}) => {
           let entry = xScale.domain()[i-1]
           cell.push(<td key={cellID} id={cellID}>{entry}</td>)
         }
-      	for (var idx = 1; idx < 2; idx++){
-          let cellID = `cell${i}-${idx}`
-          let entry = count[i-1].toFixed(0)
-          cell.push(<td key={cellID} id={cellID}>{formatNumber(entry)}</td>)
-        }
       	if(yAttribute == 'amount'){
+          	for (var idx = 1; idx < 2; idx++){
+            let cellID = `cell${i}-${idx}`
+          	let entry = count[i-1].toFixed(0)
+          	cell.push(<td key={cellID} id={cellID}>{formatNumber(entry)}</td>)
+        	}
+        }else{
+          	for (var idx = 1; idx < 2; idx++){
+          	let cellID = `cell${i}-${idx}`
+          	let entry = count[i-1].toFixed(2)
+          	cell.push(<td key={cellID} id={cellID}>{formatNumber(entry)}</td>)
+        	}
+        }
+      if(yAttribute == 'amount'){
           for (var idx = 2; idx < 3; idx++){
             let cellID = `cell${i}-${idx}`
             let entry = pct[i-1].toFixed(2)

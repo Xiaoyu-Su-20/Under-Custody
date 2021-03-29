@@ -316,16 +316,24 @@
             var entry = xScale.domain()[i-1];
             cell$1.push(React.createElement( 'td', { key: cellID$4, id: cellID$4 }, entry));
           }
-        	for (var idx = 1; idx < 2; idx++){
-            var cellID$5 = "cell" + i + "-" + idx;
-            var entry$1 = count[i-1].toFixed(0);
-            cell$1.push(React.createElement( 'td', { key: cellID$5, id: cellID$5 }, formatNumber(entry$1)));
-          }
         	if(yAttribute == 'amount'){
+            	for (var idx = 1; idx < 2; idx++){
+              var cellID$5 = "cell" + i + "-" + idx;
+            	var entry$1 = count[i-1].toFixed(0);
+            	cell$1.push(React.createElement( 'td', { key: cellID$5, id: cellID$5 }, formatNumber(entry$1)));
+          	}
+          }else {
+            	for (var idx = 1; idx < 2; idx++){
+            	var cellID$6 = "cell" + i + "-" + idx;
+            	var entry$2 = count[i-1].toFixed(2);
+            	cell$1.push(React.createElement( 'td', { key: cellID$6, id: cellID$6 }, formatNumber(entry$2)));
+          	}
+          }
+        if(yAttribute == 'amount'){
             for (var idx = 2; idx < 3; idx++){
-              var cellID$6 = "cell" + i + "-" + idx;
-              var entry$2 = pct[i-1].toFixed(2);
-              cell$1.push(React.createElement( 'td', { key: cellID$6, id: cellID$6 }, entry$2, "%"));
+              var cellID$7 = "cell" + i + "-" + idx;
+              var entry$3 = pct[i-1].toFixed(2);
+              cell$1.push(React.createElement( 'td', { key: cellID$7, id: cellID$7 }, entry$3, "%"));
             }
           }
           rows.push(React.createElement( 'tr', { key: i, id: rowID$1 }, cell$1));
