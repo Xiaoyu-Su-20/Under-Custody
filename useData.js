@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 const jsonURL =
-  "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/af1e852d9ff572d75378903612b983ba9376c932/undercustodygeo.json";
+  "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/5bed42ff8cd6d2ebb8c3020a038fb3b0c57b00a8/undercustodygeo.json";
 
 // helper function; clean the data
 function cleanData(row) {
