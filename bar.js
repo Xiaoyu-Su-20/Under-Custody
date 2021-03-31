@@ -39,8 +39,8 @@ const SVG = (ref) => {
 }
 
 
-const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
-
+const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
+		console.log('Length' , barData.length);
 		const barAdjust = 5 / barData.length // for adjusting the width of bars
     const svg = d3.select("svg")
     // remove everything from svg and rerender objects
@@ -67,13 +67,25 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
       .attr("height", d => innerHeight - yScale(d.value[yAttribute]))
       .style('opacity', 1)
   		.on('mouseover', function (d, i) {
-          tooltip
+      		if(yAttribute == 'amount'){
+            tooltip
             .html(
               `<div>${toTitle(xAttribute)}: ${d.key}</div>
-              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(2))}</div>`
+              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
+              <div>${'Percent'}: ${formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))}%</div>`
             )
             .style('visibility', 'visible');
           d3.select(this).style("opacity", 0.7);
+          }else{
+            tooltip
+            .html(
+              `<div>${toTitle(xAttribute)}: ${d.key}</div>
+              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
+              <div>${'Count'}${d.key}: ${formatNumber(d.value.amount.toFixed(0))}</div>`
+            )
+            .style('visibility', 'visible');
+          d3.select(this).style("opacity", 0.7);
+          }
       })
   		.on('mousemove', function () {
           tooltip
@@ -84,8 +96,6 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
           tooltip.html(``).style('visibility', 'hidden');
           d3.select(this).style("opacity", 1);
       });
-
-
 
 
     //moueover tooltip
@@ -99,9 +109,7 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute) => {
                     .style('padding', '10px')
                     .style('background', 'rgba(0,0,0,0.6)')
                     .style('border-radius', '4px')
-                    .style('color', '#fff')
-                    .text('a simple tooltip');
-
+                    .style('color', '#fff');
 
 
   	//--------------------------------------------------------------------------------
@@ -229,21 +237,21 @@ const Table = ({ barData, yAttribute, xAttribute, totalPopulation}) => {
         let cellID = `cell${i}-${idx}`
         cell.push(<td key={cellID} id={cellID}>{toTitle(xAttribute)}</td>)
       }
-     if(yAttribute == 'amount'){
-        for (var idx = 1; idx < 2; idx++){
-        let cellID = `cell${i}-${idx}`
-        cell.push(<td key={cellID} id={cellID}>Population</td>)
-       }
-      }else{
-        for (var idx = 1; idx < 2; idx++){
-        let cellID = `cell${i}-${idx}`
-        cell.push(<td key={cellID} id={cellID}>Years</td>)
-      	}
-      }
     	if(yAttribute == 'amount'){
-        for (var idx = 2; idx < 3; idx++){
+        for (var idx = 1; idx < 2; idx++){
         	let cellID = `cell${i}-${idx}`
         	cell.push(<td key={cellID} id={cellID}>Percent</td>)
+      	}
+      }
+     if(yAttribute == 'amount'){
+        for (var idx = 2; idx < 3; idx++){
+        	let cellID = `cell${i}-${idx}`
+        	cell.push(<td key={cellID} id={cellID}>Population</td>)
+       }
+      }else{
+        for (var idx = 2; idx < 3; idx++){
+        	let cellID = `cell${i}-${idx}`
+      		cell.push(<td key={cellID} id={cellID}>Years</td>)
       	}
       }
       row1.push(<tr key={i} id={rowID}>{cell}</tr>)
@@ -260,25 +268,26 @@ const Table = ({ barData, yAttribute, xAttribute, totalPopulation}) => {
           cell.push(<td key={cellID} id={cellID}>{entry}</td>)
         }
       	if(yAttribute == 'amount'){
-          	for (var idx = 1; idx < 2; idx++){
-            let cellID = `cell${i}-${idx}`
-          	let entry = count[i-1].toFixed(0)
-          	cell.push(<td key={cellID} id={cellID}>{formatNumber(entry)}</td>)
-        	}
-        }else{
-          	for (var idx = 1; idx < 2; idx++){
-          	let cellID = `cell${i}-${idx}`
-          	let entry = count[i-1].toFixed(2)
-          	cell.push(<td key={cellID} id={cellID}>{formatNumber(entry)}</td>)
-        	}
-        }
-      if(yAttribute == 'amount'){
-          for (var idx = 2; idx < 3; idx++){
+          for (var idx = 1; idx < 2; idx++){
             let cellID = `cell${i}-${idx}`
             let entry = pct[i-1].toFixed(2)
             cell.push(<td key={cellID} id={cellID}>{entry}%</td>)
           }
         }
+      	if(yAttribute == 'amount'){
+          	for (var idx = 2; idx < 3; idx++){
+            let cellID = `cell${i}-${idx}`
+          	let entry = count[i-1].toFixed(0)
+          	cell.push(<td key={cellID} id={cellID}>{formatNumber(entry)}</td>)
+        	}
+        }else{
+          	for (var idx = 2; idx < 3; idx++){
+          	let cellID = `cell${i}-${idx}`
+          	let entry = count[i-1].toFixed(2)
+          	cell.push(<td key={cellID} id={cellID}>{formatNumber(entry)}</td>)
+        	}
+        }
+
         rows.push(<tr key={i} id={rowID}>{cell}</tr>)
       };
 
@@ -348,7 +357,7 @@ export const Chart = ( {rawData} ) => {
       />
       </div>
 
-			<div id='radio_sort' ref={d => Bar(d, barData, yAttribute, xAttribute)} class="control-group">
+			<div id='radio_sort' ref={d => Bar(d, barData, yAttribute, xAttribute, totalPopulation)} class="control-group">
         <label class="control control-radio">
             Sort by Height
             <input  className='radio' type="radio" value="height" name="sort" />
