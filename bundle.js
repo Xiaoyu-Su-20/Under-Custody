@@ -137,16 +137,15 @@
               .html(
                 ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n              <div>" + ('Percent') + ": " + (formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))) + "%</div>")
               )
-              .style('visibility', 'visible')
-              .style("background", "rgba(0, 0, 0, 0.5)")
-              .style("padding","16px");
+              .style('visibility', 'visible');
 
             d3.select(this).style("opacity", 0.7); //opacity of the bars
             } else {
               tooltip
               .html(
                 ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n              <div>" + (d.key) + (' Count') + ": " + (formatNumber(d.value.amount.toFixed(0))) + "</div>")
-              );
+              )
+  	    .style('visibility', 'visible');
 
             d3.select(this).style("opacity", 0.7);
           }
