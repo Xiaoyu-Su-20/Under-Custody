@@ -22,6 +22,16 @@ function formatNumber(num) {
   return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 }
 
+// compute the max length for xAttribute
+function max_key_length(data) {
+	var max = 0;
+  for(var i = 0; i < data.length; i++) {
+    if (data[i].key.length > max) {
+      max = data[i].key.length
+    }
+  }
+  return max
+}
 
 //sort constant, 'none'; 'height': sort by height descendant; 'x': sort by x value
 let sort_status = 'none';
@@ -40,8 +50,10 @@ const SVG = (ref) => {
 
 
 const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
-		console.log('Length' , barData.length);
-		const barAdjust = 5 / barData.length // for adjusting the width of bars
+
+    const barAdjust = 100 / (barData.length**1.5) // for adjusting the width of bars
+    let rotate = 0 // for rotating x axis text when text is too long
+    if (max_key_length(barData) >= 10 & barData.length >= 10) {rotate=90};
     const svg = d3.select("svg")
     // remove everything from svg and rerender objects
     svg.selectAll("*").remove();
@@ -74,27 +86,30 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
               <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
               <div>${'Percent'}: ${formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))}%</div>`
             )
-            .style('visibility', 'visible');
-          d3.select(this).style("opacity", 0.7);
-          }else{
+            .style('visibility', 'visible')
+            .style("background", "rgba(0, 0, 0, 0.5)")
+            .style("padding","16px");
+
+          d3.select(this).style("opacity", 0.7); //opacity of the bars
+          } else {
             tooltip
             .html(
               `<div>${toTitle(xAttribute)}: ${d.key}</div>
               <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
-              <div>${'Count'}${d.key}: ${formatNumber(d.value.amount.toFixed(0))}</div>`
+              <div>${d.key}${' Count'}: ${formatNumber(d.value.amount.toFixed(0))}</div>`
             )
-            .style('visibility', 'visible');
+
           d3.select(this).style("opacity", 0.7);
-          }
+        }
       })
   		.on('mousemove', function () {
           tooltip
-            .style('top', d3.event.pageY - 10 + 'px')
+            .style('top', d3.event.pageY - 0 + 'px')
             .style('left', d3.event.pageX + 10 + 'px');
       })
   		.on('mouseout', function () {
           tooltip.html(``).style('visibility', 'hidden');
-          d3.select(this).style("opacity", 1);
+          d3.select(this).style("opacity", 0.9);
       });
 
 
@@ -102,15 +117,7 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
     const tooltip = d3
                     .select('body')
                     .append('div')
-                    .attr('class', 'd3-tooltip')
-                    .style('position', 'absolute')
-                    .style('z-index', '10')
-                    .style('visibility', 'hidden')
-                    .style('padding', '10px')
-                    .style('background', 'rgba(0,0,0,0.6)')
-                    .style('border-radius', '4px')
-                    .style('color', '#fff');
-
+                    .attr('class', 'd3-tooltip');
 
   	//--------------------------------------------------------------------------------
     // draw axes
@@ -124,6 +131,17 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
   		.attr("id", "xAxis")
       .attr("transform", `translate (${margin.left}, ${HEIGHT - margin.bottom})`)
       .call(xAxis);
+
+    // if the xaxis label need a rotation, do this
+    if (rotate == 90) {
+      svg.select("#xAxis")
+         .selectAll("text")
+            .attr("dx", "0.6em")
+            .attr("dy", "-0.6em")
+            .attr("text-anchor", "start")
+            .attr("transform", `rotate(${rotate})`)
+    }
+
     svg.append("g")
       .attr("class", "axis")
       .attr("transform", `translate (${margin.left}, ${margin.top})`)
@@ -133,12 +151,15 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
     //Axis labels
     svg
     	.append("text")
-    	.attr('class', 'ylabel')
+    	.attr('class', 'axis-label')
       .attr('y', 0 + HEIGHT / 2)
       .attr('x', 0 + margin.left / 2)
     	.attr("dx", "-0.95em")
-    	.style("text-anchor", "middle")
     	.text(toTitle(yAttribute));
+
+    if (rotate == 90){
+      null //do nothing
+    } else {
     svg
       .append("text")
       .attr('class', 'axis-label')
@@ -146,7 +167,7 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
       .attr("x", 0 + WIDTH/2 + margin.left/2)
       .attr("dy", "1.5em")
       .text(toTitle(xAttribute));
-
+    }
  	 	//--------------------------------------------------------------------------------
   	// sorting
   	// radio button calls sort function on click
