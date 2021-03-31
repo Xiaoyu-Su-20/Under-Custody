@@ -76,6 +76,16 @@
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
   }
 
+  // compute the max length for xAttribute
+  function max_key_length(data) {
+  	var max = 0;
+    for(var i = 0; i < data.length; i++) {
+      if (data[i].key.length > max) {
+        max = data[i].key.length;
+      }
+    }
+    return max
+  }
 
   //sort constant, 'none'; 'height': sort by height descendant; 'x': sort by x value
   var sort_status = 'none';
@@ -93,10 +103,11 @@
   };
 
 
-  var Bar = function (ref_radio, barData, yAttribute, xAttribute) {
+  var Bar = function (ref_radio, barData, yAttribute, xAttribute, totalPopulation) {
 
-  		var barAdjust = 5 / barData.length; // for adjusting the width of bars
-      var svg = d3.select("svg");
+      var barAdjust = 100 / (Math.pow( barData.length, 1.5 )); // for adjusting the width of bars
+      var rotate = 0; // for rotating x axis text when text is too long
+      if (max_key_length(barData) >= 10 & barData.length >= 10) {rotate=90;}    var svg = d3.select("svg");
       // remove everything from svg and rerender objects
       svg.selectAll("*").remove();
 
@@ -121,41 +132,41 @@
         .attr("height", function (d) { return innerHeight - yScale(d.value[yAttribute]); })
         .style('opacity', 1)
     		.on('mouseover', function (d, i) {
-            tooltip
+        		if(yAttribute == 'amount'){
+              tooltip
               .html(
-                ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(2))) + "</div>")
+                ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n              <div>" + ('Percent') + ": " + (formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))) + "%</div>")
               )
-              .style('visibility', 'visible');
+              .style('visibility', 'visible')
+              .style("background", "rgba(0, 0, 0, 0.5)")
+              .style("padding","16px");
+
+            d3.select(this).style("opacity", 0.7); //opacity of the bars
+            } else {
+              tooltip
+              .html(
+                ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n              <div>" + (d.key) + (' Count') + ": " + (formatNumber(d.value.amount.toFixed(0))) + "</div>")
+              );
+
             d3.select(this).style("opacity", 0.7);
+          }
         })
     		.on('mousemove', function () {
             tooltip
-              .style('top', d3.event.pageY - 10 + 'px')
+              .style('top', d3.event.pageY - 0 + 'px')
               .style('left', d3.event.pageX + 10 + 'px');
         })
     		.on('mouseout', function () {
             tooltip.html("").style('visibility', 'hidden');
-            d3.select(this).style("opacity", 1);
+            d3.select(this).style("opacity", 0.9);
         });
-
-
 
 
       //moueover tooltip
       var tooltip = d3
                       .select('body')
                       .append('div')
-                      .attr('class', 'd3-tooltip')
-                      .style('position', 'absolute')
-                      .style('z-index', '10')
-                      .style('visibility', 'hidden')
-                      .style('padding', '10px')
-                      .style('background', 'rgba(0,0,0,0.6)')
-                      .style('border-radius', '4px')
-                      .style('color', '#fff')
-                      .text('a simple tooltip');
-
-
+                      .attr('class', 'd3-tooltip');
 
     	//--------------------------------------------------------------------------------
       // draw axes
@@ -169,6 +180,17 @@
     		.attr("id", "xAxis")
         .attr("transform", ("translate (" + (margin.left) + ", " + (HEIGHT - margin.bottom) + ")"))
         .call(xAxis);
+
+      // if the xaxis label need a rotation, do this
+      if (rotate == 90) {
+        svg.select("#xAxis")
+           .selectAll("text")
+              .attr("dx", "0.6em")
+              .attr("dy", "-0.6em")
+              .attr("text-anchor", "start")
+              .attr("transform", ("rotate(" + rotate + ")"));
+      }
+
       svg.append("g")
         .attr("class", "axis")
         .attr("transform", ("translate (" + (margin.left) + ", " + (margin.top) + ")"))
@@ -178,12 +200,13 @@
       //Axis labels
       svg
       	.append("text")
-      	.attr('class', 'ylabel')
+      	.attr('class', 'axis-label')
         .attr('y', 0 + HEIGHT / 2)
         .attr('x', 0 + margin.left / 2)
       	.attr("dx", "-0.95em")
-      	.style("text-anchor", "middle")
       	.text(toTitle(yAttribute));
+
+      if (rotate == 90); else {
       svg
         .append("text")
         .attr('class', 'axis-label')
@@ -191,7 +214,7 @@
         .attr("x", 0 + WIDTH/2 + margin.left/2)
         .attr("dy", "1.5em")
         .text(toTitle(xAttribute));
-
+      }
    	 	//--------------------------------------------------------------------------------
     	// sorting
     	// radio button calls sort function on click
@@ -287,21 +310,21 @@
           var cellID = "cell" + i + "-" + idx;
           cell.push(React.createElement( 'td', { key: cellID, id: cellID }, toTitle(xAttribute)));
         }
-       if(yAttribute == 'amount'){
+      	if(yAttribute == 'amount'){
           for (var idx = 1; idx < 2; idx++){
-          var cellID$1 = "cell" + i + "-" + idx;
-          cell.push(React.createElement( 'td', { key: cellID$1, id: cellID$1 }, "Population"));
-         }
-        }else {
-          for (var idx = 1; idx < 2; idx++){
-          var cellID$2 = "cell" + i + "-" + idx;
-          cell.push(React.createElement( 'td', { key: cellID$2, id: cellID$2 }, "Years"));
+          	var cellID$1 = "cell" + i + "-" + idx;
+          	cell.push(React.createElement( 'td', { key: cellID$1, id: cellID$1 }, "Percent"));
         	}
         }
-      	if(yAttribute == 'amount'){
+       if(yAttribute == 'amount'){
+          for (var idx = 2; idx < 3; idx++){
+          	var cellID$2 = "cell" + i + "-" + idx;
+          	cell.push(React.createElement( 'td', { key: cellID$2, id: cellID$2 }, "Population"));
+         }
+        }else {
           for (var idx = 2; idx < 3; idx++){
           	var cellID$3 = "cell" + i + "-" + idx;
-          	cell.push(React.createElement( 'td', { key: cellID$3, id: cellID$3 }, "Percent"));
+        		cell.push(React.createElement( 'td', { key: cellID$3, id: cellID$3 }, "Years"));
         	}
         }
         row1.push(React.createElement( 'tr', { key: i, id: rowID }, cell));
@@ -317,25 +340,26 @@
             cell$1.push(React.createElement( 'td', { key: cellID$4, id: cellID$4 }, entry));
           }
         	if(yAttribute == 'amount'){
-            	for (var idx = 1; idx < 2; idx++){
+            for (var idx = 1; idx < 2; idx++){
               var cellID$5 = "cell" + i + "-" + idx;
-            	var entry$1 = count[i-1].toFixed(0);
-            	cell$1.push(React.createElement( 'td', { key: cellID$5, id: cellID$5 }, formatNumber(entry$1)));
-          	}
-          }else {
-            	for (var idx = 1; idx < 2; idx++){
-            	var cellID$6 = "cell" + i + "-" + idx;
-            	var entry$2 = count[i-1].toFixed(2);
-            	cell$1.push(React.createElement( 'td', { key: cellID$6, id: cellID$6 }, formatNumber(entry$2)));
-          	}
-          }
-        if(yAttribute == 'amount'){
-            for (var idx = 2; idx < 3; idx++){
-              var cellID$7 = "cell" + i + "-" + idx;
-              var entry$3 = pct[i-1].toFixed(2);
-              cell$1.push(React.createElement( 'td', { key: cellID$7, id: cellID$7 }, entry$3, "%"));
+              var entry$1 = pct[i-1].toFixed(2);
+              cell$1.push(React.createElement( 'td', { key: cellID$5, id: cellID$5 }, entry$1, "%"));
             }
           }
+        	if(yAttribute == 'amount'){
+            	for (var idx = 2; idx < 3; idx++){
+              var cellID$6 = "cell" + i + "-" + idx;
+            	var entry$2 = count[i-1].toFixed(0);
+            	cell$1.push(React.createElement( 'td', { key: cellID$6, id: cellID$6 }, formatNumber(entry$2)));
+          	}
+          }else {
+            	for (var idx = 2; idx < 3; idx++){
+            	var cellID$7 = "cell" + i + "-" + idx;
+            	var entry$3 = count[i-1].toFixed(2);
+            	cell$1.push(React.createElement( 'td', { key: cellID$7, id: cellID$7 }, formatNumber(entry$3)));
+          	}
+          }
+
           rows.push(React.createElement( 'tr', { key: i, id: rowID$1 }, cell$1));
         }
 
@@ -414,7 +438,7 @@
     } })
         ),
 
-  			React.createElement( 'div', { id: 'radio_sort', ref: function (d) { return Bar(d, barData, yAttribute, xAttribute); }, class: "control-group" },
+  			React.createElement( 'div', { id: 'radio_sort', ref: function (d) { return Bar(d, barData, yAttribute, xAttribute, totalPopulation); }, class: "control-group" },
           React.createElement( 'label', { class: "control control-radio" }, "Sort by Height ", React.createElement( 'input', {  className: 'radio', type: "radio", value: "height", name: "sort" }),
               React.createElement( 'div', { class: "control_indicator" })
           ),

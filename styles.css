@@ -1,6 +1,7 @@
 /* define variables  */
 :root {
   --grey: #635F5D;
+  --font: "Times New Roman", Times, serif;
 }
 
 /* axes */
@@ -16,13 +17,29 @@
 }
 .axis text{
   fill: black;
+  font-family: var(--font);
 }
 
 .axis-label {
   font-size: 1em;
+  font-family: var(--font);
   dy: 1em;
   text-anchor: middle;
   fill: black;
+}
+
+/* tooltip */
+.d3-tooltip {
+  position: absolute;
+  padding: 14px;
+	z-index: 10;
+  font-family: var(--font);
+	visibility: hidden;
+  background: rgba(0,0,0,0.6);
+  border-radius: 4px;
+  text: 'a simple tooltip';
+  color: #fff;
+  line-height: 1.6;
 }
 
 
@@ -49,6 +66,7 @@
   font-size: 2em;
   fill: var(--grey);
   color: var(--grey);
+  font-family: var(--font);
 }
 .Dropdown-menu {
   max-height: 300px;
@@ -151,9 +169,10 @@ table, th, td {
  width: 300px;
  border-bottom: 1px solid #ddd;
  padding: 10px;
+ font-family: var(--font);
 }
 tr:nth-child(even) {background-color: #f2f2f2;}
-td:nth-child(3) {text-align: right;}
+td:nth-child(even) {text-align: right;}
 thead{
  font-weight: 800;
  background-color: #328aa2;
