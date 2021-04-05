@@ -7,8 +7,8 @@
   var ReactDOM__default = /*#__PURE__*/_interopDefaultLegacy(ReactDOM$1);
   var ReactDropdown__default = /*#__PURE__*/_interopDefaultLegacy(ReactDropdown);
 
-  var jsonURL =
-    "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/5bed42ff8cd6d2ebb8c3020a038fb3b0c57b00a8/undercustodygeo.json";
+  var jsonURL = "https://gist.githubusercontent.com/EvanMisshula/019f1f9e4e52c632bf767bda18dd4f55/raw/36223c79d83e8e6606f9df3941f92c6c282133c8/nest.json";
+    //"https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/5bed42ff8cd6d2ebb8c3020a038fb3b0c57b00a8/undercustodygeo.json";
 
   // helper function; clean the data
   function cleanData(row) {
@@ -76,16 +76,6 @@
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
   }
 
-  // compute the max length for xAttribute
-  function max_key_length(data) {
-  	var max = 0;
-    for(var i = 0; i < data.length; i++) {
-      if (data[i].key.length > max) {
-        max = data[i].key.length;
-      }
-    }
-    return max
-  }
 
   //sort constant, 'none'; 'height': sort by height descendant; 'x': sort by x value
   var sort_status = 'none';
@@ -104,10 +94,8 @@
 
 
   var Bar = function (ref_radio, barData, yAttribute, xAttribute, totalPopulation) {
-
-      var barAdjust = 100 / (Math.pow( barData.length, 1.5 )); // for adjusting the width of bars
-      var rotate = 0; // for rotating x axis text when text is too long
-      if (max_key_length(barData) >= 10 & barData.length >= 10) {rotate=90;}    var svg = d3.select("svg");
+  		var barAdjust = 5 / barData.length; // for adjusting the width of bars
+      var svg = d3.select("svg");
       // remove everything from svg and rerender objects
       svg.selectAll("*").remove();
 
@@ -118,6 +106,25 @@
       var yScale = d3.scaleLinear()
                      .domain([0, d3.max( barData.map(function (d) { return d.value[yAttribute]; }) )] )
                      .range([innerHeight, 0]).nice();
+
+
+    if(xAttribute == 'age'){
+      for (var i = 0; i < barData.length; i++){
+        	var less = [];
+          var greater = [];
+          for (var j = 0; j < barData.length; j++){
+            if (barData[j].key <= parseInt(barData[i].key)){
+              less.push(barData[j].value['amount']);
+            }else {
+              greater.push(barData[j].value['amount']);
+            }
+          }
+        barData[i].value.younger = d3.sum(less);
+        barData[i].value.older = d3.sum(greater);
+      }
+
+    }
+
 
       //--------------------------------------------------------------------------------
       // draw initial bars
@@ -132,32 +139,39 @@
         .attr("height", function (d) { return innerHeight - yScale(d.value[yAttribute]); })
         .style('opacity', 1)
     		.on('mouseover', function (d, i) {
-        		if(yAttribute == 'amount'){
+        		if(yAttribute == 'amount' & xAttribute == 'age'){
+              tooltip
+              .html(
+                ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n              <div>" + ('Percent') + ": " + (formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))) + "%</div>\n              <div>There are " + (formatNumber(d.value.younger)) + " people " + (d.key) + " or younger under custody (" + (formatNumber((d.value.younger/totalPopulation*100).toFixed(1))) + "%)</div>\n              <div>There are " + (formatNumber(d.value.older)) + " people over " + (d.key) + " under custody (" + (formatNumber((d.value.older/totalPopulation*100).toFixed(1))) + "%)</div>")
+
+              )
+              .style('visibility', 'visible');
+            d3.select(this).style("opacity", 0.7);
+
+            }else if(yAttribute == 'amount'){
               tooltip
               .html(
                 ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n              <div>" + ('Percent') + ": " + (formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))) + "%</div>")
               )
               .style('visibility', 'visible');
-
-            d3.select(this).style("opacity", 0.7); //opacity of the bars
-            } else {
+            d3.select(this).style("opacity", 0.7);
+            }else {
               tooltip
               .html(
-                ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n              <div>" + (d.key) + (' Count') + ": " + (formatNumber(d.value.amount.toFixed(0))) + "</div>")
+                ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n              <div>" + ('Count') + (d.key) + ": " + (formatNumber(d.value.amount.toFixed(0))) + "</div>")
               )
-  	    .style('visibility', 'visible');
-
+              .style('visibility', 'visible');
             d3.select(this).style("opacity", 0.7);
-          }
+            }
         })
     		.on('mousemove', function () {
             tooltip
-              .style('top', d3.event.pageY - 0 + 'px')
+              .style('top', d3.event.pageY - 10 + 'px')
               .style('left', d3.event.pageX + 10 + 'px');
         })
     		.on('mouseout', function () {
             tooltip.html("").style('visibility', 'hidden');
-            d3.select(this).style("opacity", 0.9);
+            d3.select(this).style("opacity", 1);
         });
 
 
@@ -165,7 +179,15 @@
       var tooltip = d3
                       .select('body')
                       .append('div')
-                      .attr('class', 'd3-tooltip');
+                      .attr('class', 'd3-tooltip')
+                      .style('position', 'absolute')
+                      .style('z-index', '10')
+                      .style('visibility', 'hidden')
+                      .style('padding', '10px')
+                      .style('background', 'rgba(0,0,0,0.6)')
+                      .style('border-radius', '4px')
+                      .style('color', '#fff');
+
 
     	//--------------------------------------------------------------------------------
       // draw axes
@@ -179,17 +201,6 @@
     		.attr("id", "xAxis")
         .attr("transform", ("translate (" + (margin.left) + ", " + (HEIGHT - margin.bottom) + ")"))
         .call(xAxis);
-
-      // if the xaxis label need a rotation, do this
-      if (rotate == 90) {
-        svg.select("#xAxis")
-           .selectAll("text")
-              .attr("dx", "0.6em")
-              .attr("dy", "-0.6em")
-              .attr("text-anchor", "start")
-              .attr("transform", ("rotate(" + rotate + ")"));
-      }
-
       svg.append("g")
         .attr("class", "axis")
         .attr("transform", ("translate (" + (margin.left) + ", " + (margin.top) + ")"))
@@ -199,13 +210,12 @@
       //Axis labels
       svg
       	.append("text")
-      	.attr('class', 'axis-label')
+      	.attr('class', 'ylabel')
         .attr('y', 0 + HEIGHT / 2)
         .attr('x', 0 + margin.left / 2)
       	.attr("dx", "-0.95em")
+      	.style("text-anchor", "middle")
       	.text(toTitle(yAttribute));
-
-      if (rotate == 90); else {
       svg
         .append("text")
         .attr('class', 'axis-label')
@@ -213,7 +223,7 @@
         .attr("x", 0 + WIDTH/2 + margin.left/2)
         .attr("dy", "1.5em")
         .text(toTitle(xAttribute));
-      }
+
    	 	//--------------------------------------------------------------------------------
     	// sorting
     	// radio button calls sort function on click
