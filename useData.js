@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { mean, json, nest } from "d3";
 
 const jsonURL =
-  "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/5bed42ff8cd6d2ebb8c3020a038fb3b0c57b00a8/undercustodygeo.json";
+  //  "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/5bed42ff8cd6d2ebb8c3020a038fb3b0c57b00a8/undercustodygeo.json";
+  "https://gist.githubusercontent.com/EvanMisshula/019f1f9e4e52c632bf767bda18dd4f55/raw/79d7a6b2d415c5b7f32e7be4d09e97678007efa3/nest.json";
 
 // helper function; clean the data
 function cleanData(row) {
