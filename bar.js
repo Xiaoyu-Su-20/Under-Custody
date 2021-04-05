@@ -378,7 +378,7 @@ const Table = ({ barData, yAttribute, xAttribute, totalPopulation }) => {
     <table id="summary-table">
       <thead>{row1}</thead>
       <tbody>{rows}</tbody>
-      <caption>
+      <caption id="summary-t-caption">
         Total Number Under Custody: {formatNumber(totalPopulation)}
       </caption>
     </table>

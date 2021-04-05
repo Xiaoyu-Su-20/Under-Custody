@@ -126,8 +126,10 @@
 p {
   padding-left: 80px;
 }
-
-
+/* caption */
+#summary-t-caption {
+    text-align: right;
+}
 /* table */
 body {
  font-family: news-gothic-std, sans-serif;
