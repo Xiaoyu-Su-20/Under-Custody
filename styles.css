@@ -126,8 +126,10 @@
 p {
   padding-left: 80px;
 }
-
-
+/* caption */
+#summary-t-caption {
+    text-align: right;
+}
 /* table */
 body {
  font-family: news-gothic-std, sans-serif;
@@ -171,7 +173,10 @@ table, th, td {
  font-family: var(--font);
 }
 tr:nth-child(even) {background-color: #f2f2f2;}
-td:nth-child(even) {text-align: right;}
+td:nth-child(3) {
+  text-align: right;
+  text-justify: right;
+}
 thead{
  font-weight: 800;
  background-color: #328aa2;

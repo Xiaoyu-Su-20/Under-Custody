@@ -33,6 +33,25 @@ function max_key_length(data) {
   return max
 }
 
+function add_integral(barData) {
+  const lessThan = []
+  const greaterThan = []
+  for (var i = 0; i < barData.length; i++){
+      var less = []
+      var greater = []
+      for (var j = 0; j < barData.length; j++){
+        if (barData[j].key <= parseInt(barData[i].key)){
+          less.push(barData[j].value['amount'])
+        }else{
+          greater.push(barData[j].value['amount'])
+        }
+      }
+    barData[i].value.younger = d3.sum(less);
+    barData[i].value.older = d3.sum(greater);
+  }
+  return barData
+}
+
 //sort constant, 'none'; 'height': sort by height descendant; 'x': sort by x value
 let sort_status = 'none';
 const SORT_DURATION = 500;
@@ -54,8 +73,9 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
     const barAdjust = 100 / (barData.length**1.5) // for adjusting the width of bars
     let rotate = 0 // for rotating x axis text when text is too long
     if (max_key_length(barData) >= 10 & barData.length >= 10) {rotate=90};
+
+  	// remove everything from svg and rerender objects
     const svg = d3.select("svg")
-    // remove everything from svg and rerender objects
     svg.selectAll("*").remove();
 
     const xScale = d3.scaleBand()
@@ -68,55 +88,69 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
 
     //--------------------------------------------------------------------------------
     // draw initial bars
+		if (xAttribute == 'age') {
+      barData = add_integral(barData)
+    }
+
+
+
     const bars = svg.append('g')
-                      .attr("transform", `translate (${margin.left}, ${margin.top})`)
-                      .selectAll("rect")
-                      .data(barData, d => d.key);
-    bars.enter().append("rect")
-      .attr("x", (d, i) => xScale(d.key)+barAdjust)
-      .attr("y", d => yScale(d.value[yAttribute]))
-      .attr("width", xScale.bandwidth()-barAdjust*2)
-      .attr("height", d => innerHeight - yScale(d.value[yAttribute]))
-      .style('opacity', 1)
-  		.on('mouseover', function (d, i) {
-      		if(yAttribute == 'amount'){
-            tooltip
-            .html(
-              `<div>${toTitle(xAttribute)}: ${d.key}</div>
-              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
-              <div>${'Percent'}: ${formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))}%</div>`
-            )
-            .style('visibility', 'visible');
+                          .attr("transform", `translate (${margin.left}, ${margin.top})`)
+                          .selectAll("rect")
+                          .data(barData, d => d.key);
+        bars.enter().append("rect")
+          .attr("x", (d, i) => xScale(d.key)+barAdjust)
+          .attr("y", d => yScale(d.value[yAttribute]))
+          .attr("width", xScale.bandwidth()-barAdjust*2)
+          .attr("height", d => innerHeight - yScale(d.value[yAttribute]))
+          .style('opacity', 1)
+          .on('mouseover', function (d, i) {
+              if(yAttribute == 'amount' & xAttribute == 'age'){
+                tooltip
+                .html(
+                  `<div>${toTitle(xAttribute)}: ${d.key}</div>
+                  <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
+                  <div>${'Percent'}: ${formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))}%</div>
+                  <div>There are ${formatNumber(d.value.younger)} people ${d.key} or younger under custody (${formatNumber((d.value.younger/totalPopulation*100).toFixed(1))}%)</div>
+                  <div>There are ${formatNumber(d.value.older)} people over ${d.key} under custody (${formatNumber((d.value.older/totalPopulation*100).toFixed(1))}%)</div>`
 
-          d3.select(this).style("opacity", 0.7); //opacity of the bars
-          } else {
-            tooltip
-            .html(
-              `<div>${toTitle(xAttribute)}: ${d.key}</div>
-              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
-              <div>${d.key}${' Count'}: ${formatNumber(d.value.amount.toFixed(0))}</div>`
-            )
-	    .style('visibility', 'visible');
+                )
+                .style('visibility', 'visible');
+              d3.select(this).style("opacity", 0.7);
 
-          d3.select(this).style("opacity", 0.7);
-        }
-      })
-  		.on('mousemove', function () {
-          tooltip
-            .style('top', d3.event.pageY - 0 + 'px')
-            .style('left', d3.event.pageX + 10 + 'px');
-      })
-  		.on('mouseout', function () {
-          tooltip.html(``).style('visibility', 'hidden');
-          d3.select(this).style("opacity", 0.9);
-      });
+              }else if(yAttribute == 'amount'){
+                tooltip
+                .html(
+                  `<div>${toTitle(xAttribute)}: ${d.key}</div>
+                  <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
+                  <div>${'Percent'}: ${formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))}%</div>`
+                )
+                .style('visibility', 'visible');
+              d3.select(this).style("opacity", 0.7);
+              }else{
+                tooltip
+                .html(
+                  `<div>${toTitle(xAttribute)}: ${d.key}</div>
+                  <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
+                  <div>${'Count'}${d.key}: ${formatNumber(d.value.amount.toFixed(0))}</div>`
+                )
+                .style('visibility', 'visible');
+              d3.select(this).style("opacity", 0.7);
+              }
+          })
+          .on('mousemove', function () {
+              tooltip
+                .style('top', d3.event.pageY - 10 + 'px')
+                .style('left', d3.event.pageX + 10 + 'px');
+          })
+          .on('mouseout', function () {
+              tooltip.html(``).style('visibility', 'hidden');
+              d3.select(this).style("opacity", 1);
+    });
 
 
     //moueover tooltip
-    const tooltip = d3
-                    .select('body')
-                    .append('div')
-                    .attr('class', 'd3-tooltip');
+    const tooltip = select("body").append("div").attr("class", "d3-tooltip");
 
   	//--------------------------------------------------------------------------------
     // draw axes
@@ -228,6 +262,8 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
 //Table
 const Table = ({ barData, yAttribute, xAttribute, totalPopulation}) => {
 
+
+
   const xScale = d3
     .scaleBand()
     .domain(barData.map((d) => d.key))
@@ -329,9 +365,6 @@ const Table = ({ barData, yAttribute, xAttribute, totalPopulation}) => {
 
 //render table
   ReactDOM.render(tableElement, document.getElementById('table'));
-
-
-
   return <></>;
 };
 

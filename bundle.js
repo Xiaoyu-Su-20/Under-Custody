@@ -1,4 +1,4 @@
-(function (React$1, ReactDOM$1, ReactDropdown) {
+(function (React$1, ReactDOM$1, d3$1, ReactDropdown) {
   'use strict';
 
   function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
@@ -8,34 +8,37 @@
   var ReactDropdown__default = /*#__PURE__*/_interopDefaultLegacy(ReactDropdown);
 
   var jsonURL =
-    "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/5bed42ff8cd6d2ebb8c3020a038fb3b0c57b00a8/undercustodygeo.json";
+    "https://gist.githubusercontent.com/EvanMisshula/019f1f9e4e52c632bf767bda18dd4f55/raw/36223c79d83e8e6606f9df3941f92c6c282133c8/nest.json";
 
   // helper function; clean the data
   function cleanData(row) {
     return {
       sex: row.sex,
-      age: Number(row.age),
-      raceEthnicity: row.raceEthnicity,
+      age: Math.round(row.age),
+      raceEthnicity: row.modEthRace,
       timeServed: row.timeServed,
       timeServedBinned: row.timeServedBinned,
       ageBinned: row.ageBinned,
       crimeCounty: row.crimeCounty,
       downstateResident: row.downstateResident,
-      nycResident: row.nycResident
+      nycResident: row.nycResident,
     };
   }
 
   // Given the JSON data and a specified column name,
   // group by the column, compute the value counts and the average age
   function transformData(data, col) {
-    var transformed = d3
-      .nest()
+    var transformed = d3$1.nest()
       .key(function (d) { return d[col]; })
       .rollup(function (d) {
         return {
           amount: d.length,
-          ageAvg: d3.mean(d.map(function (correspondent) { return correspondent.age; })),
-          avgTimeServed: d3.mean(d.map(function (correspondent) {return correspondent.timeServed; }))
+          ageAvg: d3$1.mean(d.map(function (correspondent) { return correspondent.age; })),
+          avgTimeServed: d3$1.mean(
+            d.map(function (correspondent) {
+              return correspondent.timeServed;
+            })
+          ),
         };
       })
       .entries(data);
@@ -48,7 +51,7 @@
     var data = ref[0];
     var setData = ref[1];
     React$1.useEffect(function () {
-      d3.json(jsonURL) // retrieve data from the given URL
+      d3$1.json(jsonURL) // retrieve data from the given URL
         .then(function (data) {
           //when data is retrieved, do the following
           data = data.map(cleanData); // map each row to the cleanData function to retrieve the desired columns
@@ -87,6 +90,23 @@
     return max
   }
 
+  function add_integral(barData) {
+    for (var i = 0; i < barData.length; i++){
+        var less = [];
+        var greater = [];
+        for (var j = 0; j < barData.length; j++){
+          if (barData[j].key <= parseInt(barData[i].key)){
+            less.push(barData[j].value['amount']);
+          }else {
+            greater.push(barData[j].value['amount']);
+          }
+        }
+      barData[i].value.younger = d3.sum(less);
+      barData[i].value.older = d3.sum(greater);
+    }
+    return barData
+  }
+
   //sort constant, 'none'; 'height': sort by height descendant; 'x': sort by x value
   var sort_status = 'none';
   var SORT_DURATION = 500;
@@ -107,8 +127,9 @@
 
       var barAdjust = 100 / (Math.pow( barData.length, 1.5 )); // for adjusting the width of bars
       var rotate = 0; // for rotating x axis text when text is too long
-      if (max_key_length(barData) >= 10 & barData.length >= 10) {rotate=90;}    var svg = d3.select("svg");
-      // remove everything from svg and rerender objects
+      if (max_key_length(barData) >= 10 & barData.length >= 10) {rotate=90;}
+    	// remove everything from svg and rerender objects
+      var svg = d3.select("svg");
       svg.selectAll("*").remove();
 
       var xScale = d3.scaleBand()
@@ -121,51 +142,61 @@
 
       //--------------------------------------------------------------------------------
       // draw initial bars
+  		if (xAttribute == 'age') {
+        barData = add_integral(barData);
+      }
+
+
+
       var bars = svg.append('g')
-                        .attr("transform", ("translate (" + (margin.left) + ", " + (margin.top) + ")"))
-                        .selectAll("rect")
-                        .data(barData, function (d) { return d.key; });
-      bars.enter().append("rect")
-        .attr("x", function (d, i) { return xScale(d.key)+barAdjust; })
-        .attr("y", function (d) { return yScale(d.value[yAttribute]); })
-        .attr("width", xScale.bandwidth()-barAdjust*2)
-        .attr("height", function (d) { return innerHeight - yScale(d.value[yAttribute]); })
-        .style('opacity', 1)
-    		.on('mouseover', function (d, i) {
-        		if(yAttribute == 'amount'){
-              tooltip
-              .html(
-                ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n              <div>" + ('Percent') + ": " + (formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))) + "%</div>")
-              )
-              .style('visibility', 'visible');
+                            .attr("transform", ("translate (" + (margin.left) + ", " + (margin.top) + ")"))
+                            .selectAll("rect")
+                            .data(barData, function (d) { return d.key; });
+          bars.enter().append("rect")
+            .attr("x", function (d, i) { return xScale(d.key)+barAdjust; })
+            .attr("y", function (d) { return yScale(d.value[yAttribute]); })
+            .attr("width", xScale.bandwidth()-barAdjust*2)
+            .attr("height", function (d) { return innerHeight - yScale(d.value[yAttribute]); })
+            .style('opacity', 1)
+            .on('mouseover', function (d, i) {
+                if(yAttribute == 'amount' & xAttribute == 'age'){
+                  tooltip
+                  .html(
+                    ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n                  <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n                  <div>" + ('Percent') + ": " + (formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))) + "%</div>\n                  <div>There are " + (formatNumber(d.value.younger)) + " people " + (d.key) + " or younger under custody (" + (formatNumber((d.value.younger/totalPopulation*100).toFixed(1))) + "%)</div>\n                  <div>There are " + (formatNumber(d.value.older)) + " people over " + (d.key) + " under custody (" + (formatNumber((d.value.older/totalPopulation*100).toFixed(1))) + "%)</div>")
 
-            d3.select(this).style("opacity", 0.7); //opacity of the bars
-            } else {
-              tooltip
-              .html(
-                ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n              <div>" + (d.key) + (' Count') + ": " + (formatNumber(d.value.amount.toFixed(0))) + "</div>")
-              )
-  	    .style('visibility', 'visible');
+                  )
+                  .style('visibility', 'visible');
+                d3.select(this).style("opacity", 0.7);
 
-            d3.select(this).style("opacity", 0.7);
-          }
-        })
-    		.on('mousemove', function () {
-            tooltip
-              .style('top', d3.event.pageY - 0 + 'px')
-              .style('left', d3.event.pageX + 10 + 'px');
-        })
-    		.on('mouseout', function () {
-            tooltip.html("").style('visibility', 'hidden');
-            d3.select(this).style("opacity", 0.9);
-        });
+                }else if(yAttribute == 'amount'){
+                  tooltip
+                  .html(
+                    ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n                  <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n                  <div>" + ('Percent') + ": " + (formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))) + "%</div>")
+                  )
+                  .style('visibility', 'visible');
+                d3.select(this).style("opacity", 0.7);
+                }else {
+                  tooltip
+                  .html(
+                    ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n                  <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n                  <div>" + ('Count') + (d.key) + ": " + (formatNumber(d.value.amount.toFixed(0))) + "</div>")
+                  )
+                  .style('visibility', 'visible');
+                d3.select(this).style("opacity", 0.7);
+                }
+            })
+            .on('mousemove', function () {
+                tooltip
+                  .style('top', d3.event.pageY - 10 + 'px')
+                  .style('left', d3.event.pageX + 10 + 'px');
+            })
+            .on('mouseout', function () {
+                tooltip.html("").style('visibility', 'hidden');
+                d3.select(this).style("opacity", 1);
+      });
 
 
       //moueover tooltip
-      var tooltip = d3
-                      .select('body')
-                      .append('div')
-                      .attr('class', 'd3-tooltip');
+      var tooltip = d3$1.select("body").append("div").attr("class", "d3-tooltip");
 
     	//--------------------------------------------------------------------------------
       // draw axes
@@ -280,6 +311,8 @@
     var totalPopulation = ref.totalPopulation;
 
 
+
+
     var xScale = d3
       .scaleBand()
       .domain(barData.map(function (d) { return d.key; }))
@@ -379,9 +412,6 @@
 
   //render table
     ReactDOM.render(tableElement, document.getElementById('table'));
-
-
-
     return React.createElement( React.Fragment, null );
   };
 
@@ -471,5 +501,5 @@
   var rootElement = document.getElementById("root");
   ReactDOM__default['default'].render(React__default['default'].createElement( App, null ), rootElement);
 
-}(React, ReactDOM, ReactDropdown));
+}(React, ReactDOM, d3, ReactDropdown));
 //# sourceMappingURL=bundle.js.map
