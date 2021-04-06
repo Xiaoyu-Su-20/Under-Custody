@@ -133,7 +133,7 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
             .html(
               `<div>${toTitle(xAttribute)}: ${d.key}</div>
               <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(2))}</div>
-              <div>${'Count '}${d.key}: ${formatNumber(d.value.amount.toFixed(2))}</div>`
+              <div>${'Count '}${d.key}: ${formatNumber(d.value.amount.toFixed(0))}</div>`
             )
             .style('visibility', 'visible');
           d3.select(this).style("opacity", 0.7);
