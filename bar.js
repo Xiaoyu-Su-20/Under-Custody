@@ -132,7 +132,7 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
             tooltip
             .html(
               `<div>${toTitle(xAttribute)}: ${d.key}</div>
-              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
+              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(2))}</div>
               <div>${'Count '}${d.key}: ${formatNumber(d.value.amount.toFixed(0))}</div>`
             )
             .style('visibility', 'visible');
