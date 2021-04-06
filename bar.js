@@ -8,7 +8,7 @@ import { transformData } from "./useData";
 // bar constants
 const WIDTH = 900;
 const HEIGHT= 400;
-const margin={top: 25, right: 25, bottom: 60, left: 190};
+const margin={top: 25, right: 25, bottom: 100, left: 190};
 const innerWidth = WIDTH - margin.left - margin.right;
 const innerHeight = HEIGHT - margin.top - margin.bottom;
 
@@ -110,7 +110,7 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
             tooltip
             .html(
               `<div>${toTitle(xAttribute)}: ${d.key}</div>
-              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
+              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(2))}</div>
               <div>${'Percent'}: ${formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))}%</div>
               <div>There are ${formatNumber(d.value.younger)} people ${d.key} or younger under custody (${formatNumber((d.value.younger/totalPopulation*100).toFixed(1))}%)</div>
               <div>There are ${formatNumber(d.value.older)} people over ${d.key} under custody (${formatNumber((d.value.older/totalPopulation*100).toFixed(1))}%)</div>`
