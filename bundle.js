@@ -25,6 +25,8 @@
       nycResident: row.nycResident,
       prisonSecLevel: row.prisonSecLevel,
       prison: row.prison,
+      prisonRegion: row.prisonRegion,
+      homeRegion: row.homeRegion
     };
   }
 
@@ -68,7 +70,7 @@
   // bar constants
   var WIDTH = 900;
   var HEIGHT= 400;
-  var margin={top: 25, right: 25, bottom: 60, left: 190};
+  var margin={top: 25, right: 25, bottom: 100, left: 190};
   var innerWidth = WIDTH - margin.left - margin.right;
   var innerHeight = HEIGHT - margin.top - margin.bottom;
 
@@ -167,7 +169,7 @@
             if(yAttribute == 'amount' & xAttribute == 'age'){
               tooltip
               .html(
-                ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(0))) + "</div>\n              <div>" + ('Percent') + ": " + (formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))) + "%</div>\n              <div>There are " + (formatNumber(d.value.younger)) + " people " + (d.key) + " or younger under custody (" + (formatNumber((d.value.younger/totalPopulation*100).toFixed(1))) + "%)</div>\n              <div>There are " + (formatNumber(d.value.older)) + " people over " + (d.key) + " under custody (" + (formatNumber((d.value.older/totalPopulation*100).toFixed(1))) + "%)</div>")
+                ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(2))) + "</div>\n              <div>" + ('Percent') + ": " + (formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))) + "%</div>\n              <div>There are " + (formatNumber(d.value.younger)) + " people " + (d.key) + " or younger under custody (" + (formatNumber((d.value.younger/totalPopulation*100).toFixed(1))) + "%)</div>\n              <div>There are " + (formatNumber(d.value.older)) + " people over " + (d.key) + " under custody (" + (formatNumber((d.value.older/totalPopulation*100).toFixed(1))) + "%)</div>")
 
               )
               .style('visibility', 'visible');
@@ -411,13 +413,13 @@
 
     //create table element with rows
     var tableElement = (
-              React.createElement( 'table', { id: "summary-table" },
-                React.createElement( 'thead', null,
+              React.createElement( 'table', { id: "summary-table" }, 
+                React.createElement( 'thead', null, 
                    row1
-                 ),
-                 React.createElement( 'tbody', null,
+                 ), 
+                 React.createElement( 'tbody', null, 
                    rows
-                 ),
+                 ), 
                  React.createElement( 'caption', null, "Total Number Under Custody: ", formatNumber(totalPopulation) )
                )
         );
@@ -457,20 +459,20 @@
 
     // return the title, the dropdown menus, and the barplot with axes
   	return(
-      React.createElement( React.Fragment, null,
+      React.createElement( React.Fragment, null, 
 
-        React.createElement( 'h1', { ref: function (d) { return SVG(d); } }, " "),
+        React.createElement( 'h1', { ref: function (d) { return SVG(d); } }, " "), 
 
-        React.createElement( 'div', { className: 'menu-container' },
-        React.createElement( 'span', { className: "dropdown-label" }, "X"),
+        React.createElement( 'div', { className: 'menu-container' }, 
+        React.createElement( 'span', { className: "dropdown-label" }, "X"), 
         React.createElement( ReactDropdown__default['default'], {
           options: xFields, value: xAttribute, onChange: function (ref) {
             var value = ref.value;
             ref.label;
 
             return setXAttribute(value);
-    } }),
-        React.createElement( 'span', { className: "dropdown-label" }, "Y"),
+    } }), 
+        React.createElement( 'span', { className: "dropdown-label" }, "Y"), 
         React.createElement( ReactDropdown__default['default'], {
           options: yFields, value: yAttribute, onChange: function (ref) {
             var value = ref.value;
@@ -478,16 +480,16 @@
 
             return setYAttribute(value);
     } })
-        ),
+        ), 
 
-  			React.createElement( 'div', { id: 'radio_sort', ref: function (d) { return Bar(d, barData, yAttribute, xAttribute, totalPopulation); }, class: "control-group" },
-          React.createElement( 'label', { class: "control control-radio" }, "Sort by Height ", React.createElement( 'input', {  className: 'radio', type: "radio", value: "height", name: "sort" }),
+  			React.createElement( 'div', { id: 'radio_sort', ref: function (d) { return Bar(d, barData, yAttribute, xAttribute, totalPopulation); }, class: "control-group" }, 
+          React.createElement( 'label', { class: "control control-radio" }, "Sort by Height ", React.createElement( 'input', {  className: 'radio', type: "radio", value: "height", name: "sort" }), 
               React.createElement( 'div', { class: "control_indicator" })
-          ),
-          React.createElement( 'label', { class: "control control-radio" }, "Sort by X Value ", React.createElement( 'input', { className: 'radio', type: "radio", value: "x", name: "sort" }),
+          ), 
+          React.createElement( 'label', { class: "control control-radio" }, "Sort by X Value ", React.createElement( 'input', { className: 'radio', type: "radio", value: "x", name: "sort" }), 
               React.createElement( 'div', { class: "control_indicator" })
           )
-      ),
+      ), 
 
 
       React.createElement( Table, { barData: barData, yAttribute: yAttribute, xAttribute: xAttribute, totalPopulation: totalPopulation })
@@ -505,7 +507,7 @@
     console.log(rawData);
 
     return (
-      React__default['default'].createElement( React__default['default'].Fragment, null,
+      React__default['default'].createElement( React__default['default'].Fragment, null, 
         React__default['default'].createElement( Chart, { rawData: rawData })
       )
     );
