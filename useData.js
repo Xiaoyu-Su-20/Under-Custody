@@ -9,9 +9,9 @@ const jsonURL =
 function cleanData(row) {
   return {
     sex: row.sex,
-    age: Number(row.age),
+    age: Math.round(row.age),
     raceEthnicity: row.modEthRace,
-    timeServed: row.timeServed,
+    timeServed: Math.round(row.timeServed),
     timeServedBinned: row.timeServedBinned,
     ageBinned: row.ageBinned,
     crimeCounty: row.crimeCounty,

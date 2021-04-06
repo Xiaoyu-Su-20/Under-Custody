@@ -6,7 +6,7 @@ import { transformData } from "./useData";
 
 
 // bar constants
-const WIDTH = 700;
+const WIDTH = 900;
 const HEIGHT= 400;
 const margin={top: 25, right: 25, bottom: 60, left: 190};
 const innerWidth = WIDTH - margin.left - margin.right;
@@ -17,6 +17,7 @@ const innerHeight = HEIGHT - margin.top - margin.bottom;
 function toTitle(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
 //Number formatting
 function formatNumber(num) {
   return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
@@ -33,6 +34,7 @@ function max_key_length(data) {
   return max
 }
 
+// compute the sum of all bars with an x-value greater/smaller than certain bar
 function add_integral(barData) {
   const lessThan = []
   const greaterThan = []
@@ -67,17 +69,16 @@ const SVG = (ref) => {
     }
 }
 
-
 const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
 
     const barAdjust = 100 / (barData.length**1.5) // for adjusting the width of bars
-    let rotate = 0 // for rotating x axis text when text is too long
-    if (max_key_length(barData) >= 10 & barData.length >= 10) {rotate=90};
 
   	// remove everything from svg and rerender objects
     const svg = d3.select("svg")
     svg.selectAll("*").remove();
 
+    //-------------------------------------------------------------------------------
+    // xScale, yScale
     const xScale = d3.scaleBand()
                .domain(barData.map(d => d.key))
                .range([0, innerWidth])
@@ -86,78 +87,88 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
                    .domain([0, d3.max( barData.map(d => d.value[yAttribute]) )] )
                    .range([innerHeight, 0]).nice();
 
-    //--------------------------------------------------------------------------------
-    // draw initial bars
+   //--------------------------------------------------------------------------------
+   // bars and tooltip
+
+   // if age is selected as x-attributes, compute integral
 		if (xAttribute == 'age') {
       barData = add_integral(barData)
     }
 
-
-
     const bars = svg.append('g')
-                          .attr("transform", `translate (${margin.left}, ${margin.top})`)
-                          .selectAll("rect")
-                          .data(barData, d => d.key);
-        bars.enter().append("rect")
-          .attr("x", (d, i) => xScale(d.key)+barAdjust)
-          .attr("y", d => yScale(d.value[yAttribute]))
-          .attr("width", xScale.bandwidth()-barAdjust*2)
-          .attr("height", d => innerHeight - yScale(d.value[yAttribute]))
-          .style('opacity', 1)
-          .on('mouseover', function (d, i) {
-              if(yAttribute == 'amount' & xAttribute == 'age'){
-                tooltip
-                .html(
-                  `<div>${toTitle(xAttribute)}: ${d.key}</div>
-                  <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
-                  <div>${'Percent'}: ${formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))}%</div>
-                  <div>There are ${formatNumber(d.value.younger)} people ${d.key} or younger under custody (${formatNumber((d.value.younger/totalPopulation*100).toFixed(1))}%)</div>
-                  <div>There are ${formatNumber(d.value.older)} people over ${d.key} under custody (${formatNumber((d.value.older/totalPopulation*100).toFixed(1))}%)</div>`
+                            .attr("transform", `translate (${margin.left}, ${margin.top})`)
+                            .selectAll("rect")
+                            .data(barData, d => d.key);
+    bars.enter().append("rect")
+      .attr("x", (d, i) => xScale(d.key)+barAdjust)
+      .attr("y", d => yScale(d.value[yAttribute]))
+      .attr("width", xScale.bandwidth()-barAdjust*2)
+      .attr("height", d => innerHeight - yScale(d.value[yAttribute]))
+      .style('opacity', 1)
+      .on('mouseover', function (d, i) {
+          if(yAttribute == 'amount' & xAttribute == 'age'){
+            tooltip
+            .html(
+              `<div>${toTitle(xAttribute)}: ${d.key}</div>
+              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
+              <div>${'Percent'}: ${formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))}%</div>
+              <div>There are ${formatNumber(d.value.younger)} people ${d.key} or younger under custody (${formatNumber((d.value.younger/totalPopulation*100).toFixed(1))}%)</div>
+              <div>There are ${formatNumber(d.value.older)} people over ${d.key} under custody (${formatNumber((d.value.older/totalPopulation*100).toFixed(1))}%)</div>`
 
-                )
-                .style('visibility', 'visible');
-              d3.select(this).style("opacity", 0.7);
+            )
+            .style('visibility', 'visible');
+          d3.select(this).style("opacity", 0.7);
 
-              }else if(yAttribute == 'amount'){
-                tooltip
-                .html(
-                  `<div>${toTitle(xAttribute)}: ${d.key}</div>
-                  <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
-                  <div>${'Percent'}: ${formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))}%</div>`
-                )
-                .style('visibility', 'visible');
-              d3.select(this).style("opacity", 0.7);
-              }else{
-                tooltip
-                .html(
-                  `<div>${toTitle(xAttribute)}: ${d.key}</div>
-                  <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
-                  <div>${'Count'}${d.key}: ${formatNumber(d.value.amount.toFixed(0))}</div>`
-                )
-                .style('visibility', 'visible');
-              d3.select(this).style("opacity", 0.7);
-              }
-          })
-          .on('mousemove', function () {
-              tooltip
-                .style('top', d3.event.pageY - 10 + 'px')
-                .style('left', d3.event.pageX + 10 + 'px');
-          })
-          .on('mouseout', function () {
-              tooltip.html(``).style('visibility', 'hidden');
-              d3.select(this).style("opacity", 1);
+          }else if(yAttribute == 'amount'){
+            tooltip
+            .html(
+              `<div>${toTitle(xAttribute)}: ${d.key}</div>
+              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
+              <div>${'Percent'}: ${formatNumber((d.value[yAttribute]/totalPopulation*100).toFixed(2))}%</div>`
+            )
+            .style('visibility', 'visible');
+          d3.select(this).style("opacity", 0.7);
+          }else{
+            tooltip
+            .html(
+              `<div>${toTitle(xAttribute)}: ${d.key}</div>
+              <div>${toTitle(yAttribute)}: ${formatNumber(d.value[yAttribute].toFixed(0))}</div>
+              <div>${'Count '}${d.key}: ${formatNumber(d.value.amount.toFixed(0))}</div>`
+            )
+            .style('visibility', 'visible');
+          d3.select(this).style("opacity", 0.7);
+          }
+      })
+      .on('mousemove', function () {
+          tooltip
+            .style('top', d3.event.pageY - 10 + 'px')
+            .style('left', d3.event.pageX + 10 + 'px');
+      })
+      .on('mouseout', function () {
+          tooltip.html(``).style('visibility', 'hidden');
+          d3.select(this).style("opacity", 1);
     });
 
 
     //moueover tooltip
     const tooltip = select("body").append("div").attr("class", "d3-tooltip");
 
-  	//--------------------------------------------------------------------------------
-    // draw axes
+    //--------------------------------------------------------------------------------
+    // xAxis, yAxis
 
+    // initialize axis
+    var xAxis = d3.axisBottom().scale(xScale)
+    var yAxis = d3.axisLeft().scale(yScale);
 
-    const xAxis = d3.axisBottom().scale(xScale);
-    const yAxis = d3.axisLeft().scale(yScale);
+    // if xaxis contains too many numbers, consider show every other axis tick
+    if ((barData.length > 40) & !isNaN(barData[0].key)) {
+      xAxis = xAxis.tickFormat((interval,i) => {
+                      return i%2 !== 0 ? " ": interval;})
+    }
+
+    // show axis
+    let rotate = 0 // for rotating x axis text when text is too long
+    if (max_key_length(barData) >= 10 & barData.length >= 10) {rotate=90};
 
     svg.append("g")
       .attr("class", "axis")
@@ -205,12 +216,11 @@ const Bar = (ref_radio, barData, yAttribute, xAttribute, totalPopulation) => {
   	// sorting
   	// radio button calls sort function on click
   	d3.select(ref_radio)
-    .selectAll("input")
-    .on("click", sort)
+      .selectAll("input")
+      .on("click", sort)
 
     // sort when changing dropdown menu given the sorted button is already selected
     sort(sort_status)
-
 
     function change_data(new_data, duration, delay=0) {
       //change the axis generator
