@@ -17,6 +17,8 @@ function cleanData(row) {
     crimeCounty: row.crimeCounty,
     downstateResident: row.downstateResident,
     nycResident: row.nycResident,
+    prisonSecLevel: row.prisonSecLevel,
+    prison: row.prison,
   };
 }
 
