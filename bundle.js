@@ -507,7 +507,7 @@
     console.log(rawData);
 
     return (
-      React__default['default'].createElement( React__default['default'].Fragment, null, 
+      React__default['default'].createElement( React__default['default'].Fragment, null,
         React__default['default'].createElement( Chart, { rawData: rawData })
       )
     );
