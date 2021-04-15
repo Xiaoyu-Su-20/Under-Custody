@@ -116,8 +116,27 @@ export const Map = ( {data} ) => {
                });
   }
   
-
+	const [Attribute, setAttribute] = useState('numIncarcerated');
   
-  return(<></>)
+  const Fields = [
+    { value: "numIncarcerated",
+      text: "Number Incarcerated" },
+    { value: "numCrimes",
+      text: "Number of Crimes" },
+    { value: "population",
+      text: "County Population" },
+    { value: "incarcerationRate",
+      text: "Incarceration Rate" },
+    ]
+  
+  return(<>
+            <ReactDropdown
+          options={Fields}
+          value={Attribute}
+          onChange={({ value, text }) =>
+            setAttribute(value)
+          }
+        />
+    </>)
 }
 
