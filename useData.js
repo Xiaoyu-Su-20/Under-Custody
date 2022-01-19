@@ -3,7 +3,8 @@ import { mean, json, nest } from "d3";
 
 const jsonURL =
   //  "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/5bed42ff8cd6d2ebb8c3020a038fb3b0c57b00a8/undercustodygeo.json";
-  "https://gist.githubusercontent.com/EvanMisshula/019f1f9e4e52c632bf767bda18dd4f55/raw/36223c79d83e8e6606f9df3941f92c6c282133c8/nest.json";
+  //  "https://gist.githubusercontent.com/EvanMisshula/019f1f9e4e52c632bf767bda18dd4f55/raw/36223c79d83e8e6606f9df3941f92c6c282133c8/nest.json";
+  "https://gist.githubusercontent.com/EvanMisshula/a7897b54611544eec4659f45b89102b0/raw/96dddd9c20a05ee15d5a4be6e6ad0c304747e604/cleanDF10jj.json";
 
 // helper function; clean the data
 function cleanData(row) {
@@ -20,7 +21,7 @@ function cleanData(row) {
     prisonSecLevel: row.prisonSecLevel,
     prison: row.prison,
     prisonRegion: row.prisonRegion,
-    homeRegion: row.homeRegion
+    homeRegion: row.homeRegion,
   };
 }
 
