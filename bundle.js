@@ -1,11 +1,9 @@
 (function (React$1, ReactDOM$1, d3$1, ReactDropdown) {
   'use strict';
 
-  function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-  var React__default = /*#__PURE__*/_interopDefaultLegacy(React$1);
-  var ReactDOM__default = /*#__PURE__*/_interopDefaultLegacy(ReactDOM$1);
-  var ReactDropdown__default = /*#__PURE__*/_interopDefaultLegacy(ReactDropdown);
+  var React$1__default = 'default' in React$1 ? React$1['default'] : React$1;
+  ReactDOM$1 = ReactDOM$1 && ReactDOM$1.hasOwnProperty('default') ? ReactDOM$1['default'] : ReactDOM$1;
+  ReactDropdown = ReactDropdown && ReactDropdown.hasOwnProperty('default') ? ReactDropdown['default'] : ReactDropdown;
 
   var jsonURL =
     //  "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/5bed42ff8cd6d2ebb8c3020a038fb3b0c57b00a8/undercustodygeo.json";
@@ -104,7 +102,7 @@
         for (var j = 0; j < barData.length; j++){
           if (barData[j].key <= parseInt(barData[i].key)){
             less.push(barData[j].value['amount']);
-          }else {
+          }else{
             greater.push(barData[j].value['amount']);
           }
         }
@@ -182,7 +180,7 @@
               )
               .style('visibility', 'visible');
             d3.select(this).style("opacity", 0.7);
-            }else {
+            }else{
               tooltip
               .html(
                 ("<div>" + (toTitle(xAttribute)) + ": " + (d.key) + "</div>\n              <div>" + (toTitle(yAttribute)) + ": " + (formatNumber(d.value[yAttribute].toFixed(2))) + "</div>\n              <div>" + ('Count ') + (d.key) + ": " + (formatNumber(d.value.amount.toFixed(0))) + "</div>")
@@ -334,7 +332,7 @@
       .range([0, innerWidth])
       .paddingInner([0.2]);
 
-    d3
+    var yScale = d3
       .scaleLinear()
       .domain([0, d3.max(barData.map(function (d) { return d.value[yAttribute]; }))])
       .range([innerHeight, 0]);
@@ -368,7 +366,7 @@
           	var cellID$2 = "cell" + i + "-" + idx;
           	cell.push(React.createElement( 'td', { key: cellID$2, id: cellID$2 }, "Population"));
          }
-        }else {
+        }else{
           for (var idx = 2; idx < 3; idx++){
           	var cellID$3 = "cell" + i + "-" + idx;
         		cell.push(React.createElement( 'td', { key: cellID$3, id: cellID$3 }, "Years"));
@@ -399,7 +397,7 @@
             	var entry$2 = count[i-1].toFixed(0);
             	cell$1.push(React.createElement( 'td', { key: cellID$6, id: cellID$6 }, formatNumber(entry$2)));
           	}
-          }else {
+          }else{
             	for (var idx = 2; idx < 3; idx++){
             	var cellID$7 = "cell" + i + "-" + idx;
             	var entry$3 = count[i-1].toFixed(2);
@@ -465,18 +463,18 @@
 
         React.createElement( 'div', { className: 'menu-container' }, 
         React.createElement( 'span', { className: "dropdown-label" }, "X"), 
-        React.createElement( ReactDropdown__default['default'], {
+        React.createElement( ReactDropdown, {
           options: xFields, value: xAttribute, onChange: function (ref) {
             var value = ref.value;
-            ref.label;
+            var label = ref.label;
 
             return setXAttribute(value);
     } }), 
         React.createElement( 'span', { className: "dropdown-label" }, "Y"), 
-        React.createElement( ReactDropdown__default['default'], {
+        React.createElement( ReactDropdown, {
           options: yFields, value: yAttribute, onChange: function (ref) {
             var value = ref.value;
-            ref.label;
+            var label = ref.label;
 
             return setYAttribute(value);
     } })
@@ -501,20 +499,20 @@
     var rawData = useJSON();
 
     if (!rawData) {
-      return React__default['default'].createElement( 'h2', null, "Loading..." );
+      return React$1__default.createElement( 'h2', null, "Loading..." );
     }
 
     console.log(rawData);
 
     return (
-      React__default['default'].createElement( React__default['default'].Fragment, null,
-        React__default['default'].createElement( Chart, { rawData: rawData })
+      React$1__default.createElement( React$1__default.Fragment, null,
+        React$1__default.createElement( Chart, { rawData: rawData })
       )
     );
   };
 
   var rootElement = document.getElementById("root");
-  ReactDOM__default['default'].render(React__default['default'].createElement( App, null ), rootElement);
+  ReactDOM$1.render(React$1__default.createElement( App, null ), rootElement);
 
 }(React, ReactDOM, d3, ReactDropdown));
 //# sourceMappingURL=bundle.js.map
