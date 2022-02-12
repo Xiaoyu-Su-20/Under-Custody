@@ -20,7 +20,7 @@ function cleanData(row) {
     prisonSecLevel: row.prisonSecLevel,
     prison: row.prison,
     prisonRegion: row.prisonRegion,
-    homeRegion: row.homeRegion
+    homeRegion: row.homeRegion,
   };
 }
 

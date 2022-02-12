@@ -1,13 +1,11 @@
 (function (React$1, ReactDOM, ReactDropdown, d3$1) {
   'use strict';
 
-  function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+  var React$1__default = 'default' in React$1 ? React$1['default'] : React$1;
+  ReactDOM = ReactDOM && ReactDOM.hasOwnProperty('default') ? ReactDOM['default'] : ReactDOM;
+  ReactDropdown = ReactDropdown && ReactDropdown.hasOwnProperty('default') ? ReactDropdown['default'] : ReactDropdown;
 
-  var React__default = /*#__PURE__*/_interopDefaultLegacy(React$1);
-  var ReactDOM__default = /*#__PURE__*/_interopDefaultLegacy(ReactDOM);
-  var ReactDropdown__default = /*#__PURE__*/_interopDefaultLegacy(ReactDropdown);
-
-  var jsonURL$1 =
+  var jsonURL =
     //  "https://gist.githubusercontent.com/aulichney/2bdf13ce07abcc3206c5735b4c395400/raw/5bed42ff8cd6d2ebb8c3020a038fb3b0c57b00a8/undercustodygeo.json";
     "https://gist.githubusercontent.com/EvanMisshula/019f1f9e4e52c632bf767bda18dd4f55/raw/36223c79d83e8e6606f9df3941f92c6c282133c8/nest.json";
 
@@ -54,7 +52,7 @@
     var data = ref[0];
     var setData = ref[1];
     React$1.useEffect(function () {
-      d3$1.json(jsonURL$1) // retrieve data from the given URL
+      d3$1.json(jsonURL) // retrieve data from the given URL
         .then(function (data) {
           //when data is retrieved, do the following
           data = data.map(cleanData); // map each row to the cleanData function to retrieve the desired columns
@@ -407,23 +405,23 @@
     var barData = ref.barData;
     var xAttribute = ref.xAttribute;
     var yAttribute = ref.yAttribute;
-    ref.xFields;
+    var xFields = ref.xFields;
     var totalPopulation = ref.totalPopulation;
 
 
     // return the title, the dropdown menus, the barplot with axes, and the table
     return (
-      React.createElement( React.Fragment, null, 
-        React.createElement( 'svg', { id: 'bar', width: "900", height: "400" }), 
+      React.createElement( React.Fragment, null,
+        React.createElement( 'svg', { id: 'bar', width: "900", height: "400" }),
 
         React.createElement( 'div', {
-          id: "radio_sort", ref: function (d) { return Bar(d,barData,yAttribute,xAttribute,totalPopulation); }, class: "control-group" }, 
+          id: "radio_sort", ref: function (d) { return Bar(d,barData,yAttribute,xAttribute,totalPopulation); }, class: "control-group" },
 
-          React.createElement( 'label', { class: "control control-radio" }, "Sort by Height ", React.createElement( 'input', { className: "radio", type: "radio", value: "height", name: "sort" }), 
+          React.createElement( 'label', { class: "control control-radio" }, "Sort by Height ", React.createElement( 'input', { className: "radio", type: "radio", value: "height", name: "sort" }),
             React.createElement( 'div', { class: "control_indicator" })
-          ), 
+          ),
 
-          React.createElement( 'label', { class: "control control-radio" }, "Sort by X Value ", React.createElement( 'input', { className: "radio", type: "radio", value: "x", name: "sort" }), 
+          React.createElement( 'label', { class: "control control-radio" }, "Sort by X Value ", React.createElement( 'input', { className: "radio", type: "radio", value: "x", name: "sort" }),
             React.createElement( 'div', { class: "control_indicator" })
           )
 
@@ -433,14 +431,14 @@
     );
   };
 
-  var jsonURL = "https://gist.githubusercontent.com/aulichney/e39466ea9781fb262b190fb943003738/raw/0d4fe8b4b2a5efe1784915b08eb53910f7fa9ee4/output.geojson";
+  var jsonURL$1 = "https://gist.githubusercontent.com/aulichney/e39466ea9781fb262b190fb943003738/raw/0d4fe8b4b2a5efe1784915b08eb53910f7fa9ee4/output.geojson";
 
   var useGeoJson = function () {
     var ref = React$1.useState(null);
     var data = ref[0];
     var setData = ref[1];
     React$1.useEffect(function () {
-      d3$1.json(jsonURL) // retrieve data from the given URL
+      d3$1.json(jsonURL$1) // retrieve data from the given URL
         .then(function (data) {
           //when data is retrieved, do the following
           setData(data);
@@ -481,7 +479,7 @@
                  .projection(projection);
 
 
-    svg.selectAll("path")
+    var plot = svg.selectAll("path")
               .data(data)
               .enter()
               .append("path")
@@ -538,8 +536,8 @@
     var mapAttribute = ref.mapAttribute;
 
     return (
-      React.createElement( React.Fragment, null, 
-      React.createElement( 'svg', { id: 'map', width: '1000', height: '800' }), 
+      React.createElement( React.Fragment, null,
+      React.createElement( 'svg', { id: 'map', width: '1000', height: '800' }),
       React.createElement( 'div', {
         id: 'ref', ref: function (d) { return DrawMap(d, data, mapAttribute); } }
       )
@@ -552,19 +550,19 @@
     var mapData = useGeoJson();
 
     // hooks
-    var ref = React$1.useState('sex');
+    var ref = React$1.useState("sex");
     var xAttribute = ref[0];
     var setXAttribute = ref[1]; // barchart x attribute
-    var ref$1 = React$1.useState('amount');
+    var ref$1 = React$1.useState("amount");
     var yAttribute = ref$1[0];
     var setYAttribute = ref$1[1]; // barchart y attribute
 
-    var ref$2 = React$1.useState('numIncarcerated');
+    var ref$2 = React$1.useState("numIncarcerated");
     var mapAttribute = ref$2[0];
     var setMapAttribute = ref$2[1]; // map attribute
 
     if (!rawData || !mapData) {
-      return React__default['default'].createElement( 'h2', null, "Loading..." );
+      return React$1__default.createElement( 'h2', null, "Loading..." );
     }
 
     // the data comes in ----------------------------------------------------------------------------
@@ -572,132 +570,113 @@
     var barData = transformData(rawData, xAttribute);
     // map each column to { value: col, label: col } to feed into react Dropdown menu
     var xFields = Object.keys(rawData[0]).map(function (d) { return ({
-      value: d, label: d
+      value: d,
+      label: d,
     }); });
     var yFields = Object.keys(barData[0].value).map(function (d) { return ({
-      value: d, label: d
+      value: d,
+      label: d,
     }); });
 
     // deal with new york state county data ---------------------------------------------------------
     var mapFields = [
-      { value: "numIncarcerated",
-        label: "Number Serving Sentence in Facility Within County" },
-      { value: "numIncarceratedMale",
-        label: "Number Males Serving Sentence in Facility Within County" },
-      { value: "numIncarceratedFemale",
-        label: "Number Femalese Serving Sentence in Facility Within County" },
-      { value: "numCrimeCommitted",
-        label: "Number Incarcerated" },
-      { value: "numCrimeCommittedMale",
-        label: "Number Males Incarcerated" },
-      { value: "numCrimeCommittedFemale",
-        label: "Number Females Incarcerated" },
-      { value: "population",
-        label: "County Population" },
-      { value: "populationMale",
-        label: "County Male Population" },
-      { value: "populationFemale",
-        label: "County Female Population" },
-      { value: "incarcerationRate",
-        label: "Incarceration Rate" },
-      { value: "incarcerationRateMale",
-        label: "Incarceration Rate Male" },
-      { value: "incarcerationRateFemale",
-        label: "Incarceration Rate Female" },
-      { value: "countyHispanic",
-        label: "County Hispanic Population" },
-      { value: "countyHispanicPct",
-        label: "County Hispanic Percent" },
-      { value: "countyNHWhite",
-        label: "County NH-White Population" },
-      { value: "countyNYWhitePct",
-        label: "County NH-White Percent" },
-      { value: "countyNHBlackPct",
-        label: "County NH-Black Percent" },
-      { value: "countyNHOther",
-        label: "County NH-Other Population" },
-      { value: "countyNHOtherPct",
-        label: "County NH-Other Percent" },
-      { value: "prisonHispanic",
-        label: "Prison Hispanic Population" },
-      { value: "prisonHispanicPct",
-        label: "Prison Hispanic Percent" },
-      { value: "prisonNHWhite",
-        label: "Prison NHWhite Population" },
-      { value: "prisonNHWhitePct",
-        label: "Prison NHWhite Percent" },
-      { value: "prisonNHBlack",
-        label: "Prison NHBlack Population" },
-      { value: "prisonNHBlackPct",
-        label: "Prison NHBlack Percent" },
-      { value: "prisonNHOther",
-        label: "Prison NH Other Population" },
-      { value: "prisonNHOtherPct",
-        label: "Prison NH Other Percent" },
-      { value: "incarcerationRateHispanic",
-        label: "Incarceration Rate Hispanic" },
-      { value: "incarcerationRateNHWhite",
-        label: "Incarceration Rate NHWhite" },
-      { value: "incarcerationRateNHBlack",
-        label: "Incarceration Rate NHBlack" },
-      { value: "incarcerationRateNHOther",
-        label: "Incarceration Rate NHOther" },
-      { value: "pctUnemployed",
-        label: "Percent Unemployed Over 16" },
-      { value: "pctFoodStamps",
-        label: "Percent Used Food Stamps in Last 12 months" },
-      { value: "pctPovertyLine",
-        label: "Percent Below Poverty Line" },
-      { value: "pctHighSchool",
-        label: "Percent Over 25 High School Graduate" },
-      { value: "pctBachelors",
-        label: "Percent Over 25 Bachelors or Higher" } ];
+      {
+        value: "numIncarcerated",
+        label: "Number Serving Sentence in Facility Within County",
+      },
+      {
+        value: "numIncarceratedMale",
+        label: "Number Males Serving Sentence in Facility Within County",
+      },
+      {
+        value: "numIncarceratedFemale",
+        label: "Number Femalese Serving Sentence in Facility Within County",
+      },
+      { value: "numCrimeCommitted", label: "Number Incarcerated" },
+      { value: "numCrimeCommittedMale", label: "Number Males Incarcerated" },
+      { value: "numCrimeCommittedFemale", label: "Number Females Incarcerated" },
+      { value: "population", label: "County Population" },
+      { value: "populationMale", label: "County Male Population" },
+      { value: "populationFemale", label: "County Female Population" },
+      { value: "incarcerationRate", label: "Incarceration Rate" },
+      { value: "incarcerationRateMale", label: "Incarceration Rate Male" },
+      { value: "incarcerationRateFemale", label: "Incarceration Rate Female" },
+      { value: "countyHispanic", label: "County Hispanic Population" },
+      { value: "countyHispanicPct", label: "County Hispanic Percent" },
+      { value: "countyNHWhite", label: "County NH-White Population" },
+      { value: "countyNYWhitePct", label: "County NH-White Percent" },
+      { value: "countyNHBlackPct", label: "County NH-Black Percent" },
+      { value: "countyNHOther", label: "County NH-Other Population" },
+      { value: "countyNHOtherPct", label: "County NH-Other Percent" },
+      { value: "prisonHispanic", label: "Prison Hispanic Population" },
+      { value: "prisonHispanicPct", label: "Prison Hispanic Percent" },
+      { value: "prisonNHWhite", label: "Prison NHWhite Population" },
+      { value: "prisonNHWhitePct", label: "Prison NHWhite Percent" },
+      { value: "prisonNHBlack", label: "Prison NHBlack Population" },
+      { value: "prisonNHBlackPct", label: "Prison NHBlack Percent" },
+      { value: "prisonNHOther", label: "Prison NH Other Population" },
+      { value: "prisonNHOtherPct", label: "Prison NH Other Percent" },
+      {
+        value: "incarcerationRateHispanic",
+        label: "Incarceration Rate Hispanic",
+      },
+      { value: "incarcerationRateNHWhite", label: "Incarceration Rate NHWhite" },
+      { value: "incarcerationRateNHBlack", label: "Incarceration Rate NHBlack" },
+      { value: "incarcerationRateNHOther", label: "Incarceration Rate NHOther" },
+      { value: "pctUnemployed", label: "Percent Unemployed Over 16" },
+      {
+        value: "pctFoodStamps",
+        label: "Percent Used Food Stamps in Last 12 months",
+      },
+      { value: "pctPovertyLine", label: "Percent Below Poverty Line" },
+      { value: "pctHighSchool", label: "Percent Over 25 High School Graduate" },
+      { value: "pctBachelors", label: "Percent Over 25 Bachelors or Higher" } ];
     return (
-      React__default['default'].createElement( React__default['default'].Fragment, null, 
-      React__default['default'].createElement( 'div', null, 
-          React__default['default'].createElement( 'div', { id: 'barchart_menu', className: "menu-container" }, 
-            React__default['default'].createElement( 'span', { className: "dropdown-label" }, "X"), 
-            React__default['default'].createElement( ReactDropdown__default['default'], {
+      React$1__default.createElement( React$1__default.Fragment, null,
+        React$1__default.createElement( 'div', null,
+          React$1__default.createElement( 'div', { id: "barchart_menu", className: "menu-container" },
+            React$1__default.createElement( 'span', { className: "dropdown-label" }, "X"),
+            React$1__default.createElement( ReactDropdown, {
               options: xFields, value: xAttribute, onChange: function (ref) {
-                  var value = ref.value;
-                  ref.label;
+                var value = ref.value;
+                var label = ref.label;
 
-                  return setXAttribute(value);
-    } }), 
-            React__default['default'].createElement( 'span', { className: "dropdown-label" }, "Y"), 
-            React__default['default'].createElement( ReactDropdown__default['default'], {
+                return setXAttribute(value);
+    } }),
+            React$1__default.createElement( 'span', { className: "dropdown-label" }, "Y"),
+            React$1__default.createElement( ReactDropdown, {
               options: yFields, value: yAttribute, onChange: function (ref) {
-                  var value = ref.value;
-                  ref.label;
+                var value = ref.value;
+                var label = ref.label;
 
-                  return setYAttribute(value);
+                return setYAttribute(value);
     } })
-          ), 
-          React__default['default'].createElement( Chart, {
+          ),
+          React$1__default.createElement( Chart, {
             barData: barData, xAttribute: xAttribute, yAttribute: yAttribute, xFields: xFields, totalPopulation: rawData.length })
-      ), 
+        ),
 
-      React__default['default'].createElement( 'div', null, 
-        React__default['default'].createElement( 'h1', { id: 'map' }, " New York State Map Data"), 
+        React$1__default.createElement( 'div', null,
+          React$1__default.createElement( 'h1', { id: "map" }, " New York State Map Data"),
 
-        React__default['default'].createElement( 'div', { id: 'map_menu', className: "menu-container" }, 
-        React__default['default'].createElement( 'span', { className: "dropdown-label" }, "Select"), 
-          React__default['default'].createElement( ReactDropdown__default['default'], {
+          React$1__default.createElement( 'div', { id: "map_menu", className: "menu-container" },
+            React$1__default.createElement( 'span', { className: "dropdown-label" }, "Select"),
+            React$1__default.createElement( ReactDropdown, {
               options: mapFields, value: mapAttribute, onChange: function (ref) {
-                  var value = ref.value;
-                  ref.label;
+                var value = ref.value;
+                var label = ref.label;
 
-                  return setMapAttribute(value);
+                return setMapAttribute(value);
     } })
-        ), 
-        React__default['default'].createElement( Map, { data: mapData.features, mapAttribute: mapAttribute })
-      )
+          ),
+          React$1__default.createElement( Map, { data: mapData.features, mapAttribute: mapAttribute })
+        )
       )
     );
   };
 
   var rootElement = document.getElementById("root");
-  ReactDOM__default['default'].render(React__default['default'].createElement( App, null ), rootElement);
+  ReactDOM.render(React$1__default.createElement( App, null ), rootElement);
 
 }(React, ReactDOM, ReactDropdown, d3));
 //# sourceMappingURL=bundle.js.map
