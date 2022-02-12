@@ -2,6 +2,7 @@
 :root {
   --grey: #635F5D;
   --font: "Times New Roman", Times, serif;
+  --left_margin: 200px;
 }
 
 /* axes */
@@ -21,9 +22,9 @@
 }
 
 .axis-label {
-  font-size: 0.65em;
+  font-size: 1em;
   font-family: var(--font);
-  dy: 1em;
+  dy: 1.2em;
   text-anchor: middle;
   fill: black;
 }
@@ -48,27 +49,33 @@
   margin-top: 20px;
   margin-right: 20px;
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: center;
 }
 
 .dropdown-label{
-  margin-left: 80px;
+  margin-left: 100px;
   margin-right: 20px;
+  font-size: 1.5em;
+  margin-top:10px;
+  fill: var(--grey);
+  color: var(--grey);
+  font-family: var(--font);
+
 }
 .Dropdown-root {
   font-size: 1.5em;
-  width: 200px;
+  width: 300px;
   display: inline-block;
+  border-radius:0.35em;
+}
+.Dropdown-menu {
+  max-height: 300px;
 }
 .dropdown-label {
   font-size: 2em;
   fill: var(--grey);
   color: var(--grey);
   font-family: var(--font);
-}
-.Dropdown-menu {
-  max-height: 300px;
 }
 
 
